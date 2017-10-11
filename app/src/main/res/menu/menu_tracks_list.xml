@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--android:icon="@mipmap/delete"-->
+    <item
+        android:id="@+id/menu_item_del_track"
+        android:orderInCategory="5"
+        android:title="Delete Tracks"
+        android:titleCondensed="@string/fa_trash_o"
+        app:actionLayout="@layout/lay_menu_item"
+        app:showAsAction="always"></item>
+
+    <item
+        android:id="@+id/menu_item_upd_track_name"
+        android:title="Update Name"
+        android:titleCondensed="@string/fa_pencil"
+        android:orderInCategory="4"
+        app:actionLayout="@layout/lay_menu_item"
+        app:showAsAction="always"></item>
+
+
+    <item
+        android:id="@+id/menu_item_go_to_chart"
+        app:actionLayout="@layout/lay_menu_item"
+        android:title="Charts"
+        android:titleCondensed="@string/fa_icon_linechart"
+        android:orderInCategory="3"
+        app:showAsAction="always"></item>
+
+    <item
+        android:id="@+id/menu_item_go_to_map"
+        app:actionLayout="@layout/lay_menu_item"
+        android:title="Map"
+        android:titleCondensed="@string/fa_map_o"
+        android:orderInCategory="0"
+        app:showAsAction="always"></item>
+
+
+
+
+    <item
+        android:id="@+id/menu_tl_item_go_to_wp_list"
+        app:actionLayout="@layout/lay_menu_item"
+        android:title="Charts"
+        android:titleCondensed="@string/fa_map_pin"
+        android:orderInCategory="0"
+        app:showAsAction="always"></item>
+
+    <item
+        android:id="@+id/menu_tl_export_track"
+        app:actionLayout="@layout/lay_menu_item"
+        android:titleCondensed="@string/fa_download"
+        android:title="Export GPX"
+        android:orderInCategory="100"
+        app:showAsAction="never">
+
+    </item>
+
+   <item
+        android:id="@+id/menu_tl_item_import_track"
+        app:actionLayout="@layout/lay_menu_item"
+        android:titleCondensed="@string/fa_upload"
+        android:title="Import Track"
+        android:orderInCategory="101"
+        app:showAsAction="never"></item>
+
+</menu>

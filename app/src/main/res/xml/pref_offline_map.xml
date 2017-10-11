@@ -1,0 +1,42 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/pref_offlinemap_switch_key"
+        android:summary="@string/pref_offlinemap_switch_summary"
+        android:title="@string/pref_offlinemap_switch_title" />
+
+    <Preference
+        android:key="@string/pref_offlinemap_key"
+        android:selectAllOnFocus="true"
+        android:title="@string/pref_offlinemap_title"
+        android:summary="@string/pref_offlinemap_summary">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="bop.provalayout"
+            android:targetClass="bop.provalayout.FileChooser"
+            android:data="offlinemap"/>
+    </Preference>
+
+    <EditTextPreference
+        android:defaultValue="15"
+        android:inputType="number"
+        android:key="@string/pref_offlinemap_zoom_max_key"
+        android:selectAllOnFocus="true"
+        android:title="@string/pref_offlinemap_zoom_max_title"
+        android:summary="@string/pref_offlinemap_zoom_max_summary"
+        />
+
+    <EditTextPreference
+        android:defaultValue="0"
+        android:inputType="number"
+        android:key="@string/pref_offlinemap_zoom_min_key"
+        android:selectAllOnFocus="true"
+        android:title="@string/pref_offlinemap_zoom_min_title"
+        android:summary="@string/pref_offlinemap_zoom_min_summary"
+        />
+
+
+
+
+</PreferenceScreen>

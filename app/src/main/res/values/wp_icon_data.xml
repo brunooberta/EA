@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="wp_spinner_descriptions">
+        <item>Blue Flag</item>
+        <item>Red Flag</item>
+        <item>Fountain</item>
+        <item>Building</item>
+        <item>Cross</item>
+        <item>Church</item>
+        <item>Panoramic Point</item>
+        <item>Monument</item>
+        <item>Crossroads</item>
+
+    </string-array>
+
+    <!-- le icone devono esere 16x16 -->
+    <array name="wp_spinner_icons">
+        <item>@mipmap/flag_map_marker_blue</item>
+        <item>@mipmap/flag_map_marker_red</item>
+        <item>@mipmap/fountain</item>
+        <item>@mipmap/home</item>
+        <item>@mipmap/cross</item>
+        <item>@mipmap/church</item>
+        <item>@mipmap/panoramicpoint</item>
+        <item>@mipmap/monument</item>
+        <item>@mipmap/crossroads</item>
+    </array>
+
+</resources>

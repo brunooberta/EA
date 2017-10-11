@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_wpl_item_go_to_tracklist"
+        android:orderInCategory="0"
+        android:title="Settings"
+        android:titleCondensed="@string/fa_list"
+        app:actionLayout="@layout/lay_menu_item"
+        app:showAsAction="always"></item>
+
+
+    <item
+        android:id="@+id/menu_wpl_item_go_to_map"
+        app:actionLayout="@layout/lay_menu_item"
+        android:title="Map"
+        android:titleCondensed="@string/fa_map_o"
+        android:orderInCategory="1"
+        app:showAsAction="always"></item>
+
+    <item
+        android:id="@+id/menu_wpl_item_go_to_wp_detail"
+        android:title="Update Name"
+        android:titleCondensed="@string/fa_pencil"
+        android:orderInCategory="2"
+        app:actionLayout="@layout/lay_menu_item"
+        app:showAsAction="always"></item>
+
+    <item
+        android:id="@+id/menu_wpl_item_del_track"
+        android:orderInCategory="3"
+        android:title="Delete Tracks"
+        android:titleCondensed="@string/fa_trash_o"
+        app:actionLayout="@layout/lay_menu_item"
+        app:showAsAction="always"></item>
+
+
+
+
+
+
+
+
+
+</menu>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/menu_sh_item_go_to_map"
+        app:actionLayout="@layout/lay_menu_item"
+        android:title="Map"
+        android:titleCondensed="@string/fa_map_o"
+        android:orderInCategory="1"
+        app:showAsAction="always"></item>
+
+    <item
+        android:id="@+id/menu_sh_item_go_to_chart"
+        app:actionLayout="@layout/lay_menu_item"
+        android:title="Charts"
+        android:titleCondensed="@string/fa_icon_linechart"
+        android:orderInCategory="2"
+        app:showAsAction="always"></item>
+
+    <item
+        android:id="@+id/menu_sh_item_fb"
+        app:actionLayout="@layout/lay_menu_item"
+        android:title="Charts"
+        android:titleCondensed="@string/fa_facebook_official"
+        android:orderInCategory="3"
+        app:showAsAction="always"></item>
+
+    <item
+        android:id="@+id/menu_sh_item_wa"
+        app:actionLayout="@layout/lay_menu_item"
+        android:title="Charts"
+        android:titleCondensed="@string/fa_whatsapp"
+        android:orderInCategory="4"
+        app:showAsAction="always"></item>
+
+</menu>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="animation_length_ms">1000</integer>
+    <integer name="threshold_track_select_m">1000</integer>
+    <integer name="threshold_zoom_show_markers_direction">15</integer>
+
+</resources>

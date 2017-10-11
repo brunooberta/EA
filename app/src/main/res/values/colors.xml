@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+    <color name="colorPrimary">#3F51B5</color>
+    -->
+    <color name="colorPrimary">#7E98CE</color>
+    <color name="colorPrimaryDark">#303f9f</color>
+    <color name="colorAccent">#4169E1</color>
+
+    <color name="col_background">#e0e0e0</color>
+    <color name="col_toolbar">#e0e0e0</color>
+
+
+    <color name="trans">#00000000 </color>
+    <color name="tv_border">#17113E </color>
+
+    <color name="calendar_background">@color/col_background</color>
+    <color name="calendar_currentday_bg">@android:color/holo_red_light</color>
+    <color name="calendar_selectedday_bg">@android:color/holo_orange_dark</color>
+    <color name="calendar_multieventindicator">#ffffff</color>
+    <color name="calendar_eventindicator">@android:color/holo_blue_light</color>
+    <color name="calendar_textcolor">@android:color/black</color>
+
+
+    <color name="mi_icon_unselected">@android:color/black</color>
+    <color name="mi_layout_selected">#808080</color>
+    <color name="mi_icon_selected">#1E90FF</color>
+
+</resources>

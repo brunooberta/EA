@@ -1,0 +1,48 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:defaultValue="1"
+        android:inputType="number"
+        android:key="@string/pref_gps_key_minum_distance"
+        android:selectAllOnFocus="true"
+        android:title="@string/pref_gps_title_minum_distance"
+        android:summary="@string/pref_gps_summary_minum_distance"/>
+
+    <EditTextPreference
+        android:defaultValue="10"
+        android:inputType="number"
+        android:key="@string/pref_gps_key_minum_time_for_direction"
+        android:selectAllOnFocus="true"
+        android:title="@string/pref_gps_title_minum_time_for_direction"
+        android:summary="@string/pref_gps_summary_minum_time_for_direction"/>
+
+    <EditTextPreference
+        android:defaultValue="1"
+        android:inputType="number"
+        android:key="@string/pref_gps_key_minum_time"
+        android:selectAllOnFocus="true"
+        android:title="@string/pref_gps_title_minum_time"
+        android:summary="@string/pref_gps_summary_minum_time"/>
+
+    <EditTextPreference
+        android:defaultValue="0"
+        android:inputType="numberSigned"
+        android:key="@string/pref_gps_key_geoid_correction"
+        android:selectAllOnFocus="true"
+        android:title="@string/pref_gps_title_geoid_correction"
+        android:summary="@string/pref_gps_summary_geoid_correction"/>
+
+    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
+         dismiss it. -->
+    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
+    <!--
+    <ListPreference
+        android:defaultValue="-1"
+        android:entries="@array/pref_example_list_titles"
+        android:entryValues="@array/pref_example_list_values"
+        android:key="example_list"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_title_add_friends_to_messages" />
+-->
+</PreferenceScreen>

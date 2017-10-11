@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="3dp"
+    android:background="@drawable/list_bg_normal"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_file_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="tv_file_icon" />
+
+    <TextView
+        android:id="@+id/tv_filename"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dip"
+        android:layout_marginTop="5dip"
+        android:layout_toRightOf="@+id/tv_file_icon"
+        android:text="tv_filename"
+        android:textSize="18sp"
+        android:textStyle="bold">
+
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/tv_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_filename"
+        android:layout_marginLeft="10dip"
+        android:layout_toRightOf="@+id/tv_file_icon"
+        android:text="tv_info">
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/tv_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tv_filename"
+        android:layout_marginLeft="5dip"
+        android:text="tv_date">
+
+    </TextView>
+</RelativeLayout>

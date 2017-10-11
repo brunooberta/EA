@@ -1,0 +1,19 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:editable="false"
+        android:key="@string/pref_credits_copyright_key"
+        android:selectAllOnFocus="true"
+        android:selectable="false"
+        android:summary="@string/pref_credits_copyright_summary"
+        android:title="@string/pref_credits_copyright_title" />
+
+    <EditTextPreference
+        android:editable="false"
+        android:key="@string/pref_credits_appvs_key"
+        android:selectAllOnFocus="true"
+        android:selectable="false"
+        android:summary="@string/pref_credits_appvs_summary"
+        android:title="@string/pref_credits_appvs_title" />
+
+</PreferenceScreen>

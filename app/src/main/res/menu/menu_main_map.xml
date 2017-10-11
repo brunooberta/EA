@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--android:icon="@mipmap/delete"-->
+    <item
+        android:id="@+id/menu_item_go_to_tracklist"
+        android:orderInCategory="0"
+        android:title="Settings"
+        android:titleCondensed="@string/fa_list"
+        app:actionLayout="@layout/lay_menu_item"
+        app:showAsAction="always"></item>
+
+    <item
+        android:id="@+id/menu_item_recycle_track"
+        android:title="Update Name"
+        android:titleCondensed="@string/fa_recycle"
+        android:orderInCategory="1"
+        app:actionLayout="@layout/lay_menu_item"
+        app:showAsAction="always"></item>
+
+
+    <item
+        android:id="@+id/menu_item_go_to_wp_list"
+        app:actionLayout="@layout/lay_menu_item"
+        android:title="Charts"
+        android:titleCondensed="@string/fa_map_pin"
+        android:orderInCategory="2"
+        app:showAsAction="always"></item>
+
+    <item
+        android:id="@+id/menu_item_get_position"
+        app:actionLayout="@layout/lay_menu_item"
+        android:title="Map"
+        android:titleCondensed="@string/fa_hand_o_down"
+        android:orderInCategory="3"
+        app:showAsAction="always"></item>
+
+
+    <item
+        android:id="@+id/menu_item_settings"
+        app:actionLayout="@layout/lay_menu_item"
+        android:titleCondensed="@string/fa_cogs"
+        android:title="Import Track"
+        android:orderInCategory="4"
+        app:showAsAction="always"></item>
+
+</menu>
