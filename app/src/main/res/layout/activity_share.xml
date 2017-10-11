@@ -7,9 +7,10 @@
     android:layout_height="match_parent"
     android:background="@color/col_background"
     tools:context="bop.provalayout.ShareActivity">
+
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="495dp"
+        android:layout_height="551dp"
         android:orientation="vertical"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -26,19 +27,19 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="0dp"
             android:background="@color/col_background"
+            android:contentInsetEnd="0dp"
+            android:contentInsetLeft="0dp"
+            android:contentInsetRight="0dp"
+            android:contentInsetStart="0dp"
             android:foregroundGravity="center_horizontal"
             android:gravity="center_horizontal"
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-            app:layout_constraintTop_toTopOf="@+id/parent"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            android:contentInsetLeft="0dp"
-            android:contentInsetStart="0dp"
+            app:contentInsetEnd="0dp"
             app:contentInsetLeft="0dp"
-            app:contentInsetStart="0dp"
-            android:contentInsetRight="0dp"
-            android:contentInsetEnd="0dp"
             app:contentInsetRight="0dp"
-            app:contentInsetEnd="0dp"></android.support.v7.widget.Toolbar>
+            app:contentInsetStart="0dp"
+            app:layout_constraintTop_toTopOf="@+id/parent"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"></android.support.v7.widget.Toolbar>
 
         <TextView
             android:id="@+id/tv_trackName"
@@ -63,8 +64,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="43dp"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tv_L"
@@ -74,7 +75,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/border_black"
                 android:padding="2dp"
-                android:text="L: "
+                android:text="Length:"
                 android:textSize="22sp" />
 
             <TextView
@@ -85,14 +86,14 @@
                 android:layout_weight="1"
                 android:background="@drawable/border_black"
                 android:padding="2dp"
-                android:text="T: "
+                android:text="Duration: "
                 android:textSize="22sp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="43dp"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tv_Dp"
@@ -102,7 +103,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/border_black"
                 android:padding="2dp"
-                android:text="D+: "
+                android:text="D Positive: "
                 android:textSize="22sp" />
 
             <TextView
@@ -113,7 +114,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/border_black"
                 android:padding="2dp"
-                android:text="D-: "
+                android:text="D Negative:"
                 android:textSize="22sp" />
         </LinearLayout>
 
