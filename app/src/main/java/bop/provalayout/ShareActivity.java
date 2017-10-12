@@ -14,9 +14,9 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.animation.Animation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.CallbackManager;
@@ -43,23 +43,19 @@ public class ShareActivity extends AppCompatActivity {
     private String[] arr_trackId = new String[]{};
     private String selected_date="";
     private int screen_width =0;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         try {
             super.onCreate(savedInstanceState);
-            toolBarAnimation = gbl.getToolbarAnimation(getApplicationContext());
 
-            //mPath_source = Environment.getExternalStorageDirectory().toString() + "/Download/screenshot.jpg";
-            //mPath_to_share = Environment.getExternalStorageDirectory().toString() + "/Download/sharing_pic.jpg";
             mPath_source = gbl.getAppFolderPath() + File.separator + "screenshot.jpg";
             mPath_to_share = gbl.getAppFolderPath() + File.separator + "sharing_pic.jpg";
 
             setContentView(R.layout.activity_share);
-            //ActionBar actionBar = getSupportActionBar();
-            //actionBar.hide();
 
-            Toolbar toolbar = (Toolbar) findViewById(R.id.tb_share_activity);
+            toolbar = (Toolbar) findViewById(R.id.tb_share_activity);
             setSupportActionBar(toolbar);
             getSupportActionBar().setTitle("");
             getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -169,14 +165,11 @@ public class ShareActivity extends AppCompatActivity {
 
     private void makeScreenshot() throws IOException {
 
-        // create bitmap screen capture
-        View v1 = getWindow().getDecorView().getRootView();
-        v1.setDrawingCacheEnabled(true);
-        Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
-        v1.setDrawingCacheEnabled(false);
-
+        LinearLayout lr = (LinearLayout)findViewById(R.id.rl_share_main);
+        lr.setDrawingCacheEnabled(true);
+        lr.buildDrawingCache();
+        Bitmap bitmap = lr.getDrawingCache();
         File imageFile = new File(mPath_to_share);
-
         FileOutputStream outputStream = new FileOutputStream(imageFile);
         int quality = 100;
         bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);

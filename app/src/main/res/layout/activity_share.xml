@@ -5,14 +5,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/border_white"
+    android:background="@color/col_background"
     tools:context="bop.provalayout.ShareActivity">
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="551dp"
         android:layout_margin="1dp"
-        android:background="@drawable/border_white"
+        android:background="@color/col_background"
         android:orientation="vertical"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -44,44 +44,57 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"></android.support.v7.widget.Toolbar>
 
 
+        <LinearLayout
 
-       <LinearLayout
-
+            android:id="@+id/rl_share_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="1dp"
-            android:background="@drawable/border_white"
+            android:background="@drawable/share_style"
             android:orientation="vertical"
             android:padding="10dp">
 
-           <TextView
-               android:id="@+id/tv_trackName"
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:layout_gravity="center_vertical"
-               android:layout_margin="1dp"
-               android:background="@drawable/border_white"
-               android:gravity="center_vertical|center_horizontal"
-               android:text="TextView"
-               android:textColor="@android:color/white"
-               android:textSize="24sp"
-               android:textStyle="bold" />
+            <TextView
+                android:id="@+id/tv_appName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="1dp"
+                android:background="@drawable/share_style"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="@string/app_name"
+                android:textColor="@android:color/white"
+                android:textSize="26sp"
+                android:textStyle="bold" />
 
-           <ImageView
-               android:id="@+id/imageView_holder"
-               android:layout_width="match_parent"
-               android:layout_height="300dp"
-               android:layout_weight="0.21"
-               android:layout_margin="1dp"
-               android:background="@drawable/border_white"
-               android:padding="5dp"
-               app:srcCompat="@color/cast_libraries_material_featurehighlight_outer_highlight_default_color" />
+            <TextView
+                android:id="@+id/tv_trackName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="1dp"
+                android:background="@drawable/share_style"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="TextView"
+                android:textColor="@android:color/holo_orange_light"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/imageView_holder"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_margin="1dp"
+                android:layout_weight="0.21"
+                android:background="@drawable/share_style"
+                android:padding="5dp"
+                app:srcCompat="@color/cast_libraries_material_featurehighlight_outer_highlight_default_color" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="1dp"
-                android:background="@drawable/border_white"
+                android:background="@drawable/share_style"
                 android:orientation="horizontal">
 
                 <TextView
@@ -92,7 +105,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text="Length:"
-                    android:textColor="@android:color/white"
+                    android:textColor="@android:color/holo_orange_light"
                     android:textSize="22sp" />
 
                 <TextView
@@ -103,7 +116,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text=""
-                    android:textColor="@android:color/white"
+                    android:textColor="@android:color/holo_orange_light"
                     android:textSize="22sp" />
 
             </LinearLayout>
@@ -112,7 +125,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="1dp"
-                android:background="@drawable/border_white"
+                android:background="@drawable/share_style"
                 android:orientation="horizontal">
 
                 <TextView
@@ -123,7 +136,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text="Duration:"
-                    android:textColor="@android:color/white"
+                    android:textColor="@android:color/holo_orange_light"
                     android:textSize="22sp" />
 
                 <TextView
@@ -134,7 +147,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text=""
-                    android:textColor="@android:color/white"
+                    android:textColor="@android:color/holo_orange_light"
                     android:textSize="22sp" />
 
             </LinearLayout>
@@ -143,7 +156,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="1dp"
-                android:background="@drawable/border_white"
+                android:background="@drawable/share_style"
                 android:orientation="horizontal">
 
                 <TextView
@@ -154,7 +167,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text="D Positive:"
-                    android:textColor="@android:color/white"
+                    android:textColor="@android:color/holo_orange_light"
                     android:textSize="22sp" />
 
                 <TextView
@@ -165,7 +178,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text=""
-                    android:textColor="@android:color/white"
+                    android:textColor="@android:color/holo_orange_light"
                     android:textSize="22sp" />
 
             </LinearLayout>
@@ -174,7 +187,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="1dp"
-                android:background="@drawable/border_white"
+                android:background="@drawable/share_style"
                 android:orientation="horizontal">
 
                 <TextView
@@ -185,7 +198,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text="D Negative:"
-                    android:textColor="@android:color/white"
+                    android:textColor="@android:color/holo_orange_light"
                     android:textSize="22sp" />
 
                 <TextView
@@ -196,7 +209,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text=""
-                    android:textColor="@android:color/white"
+                    android:textColor="@android:color/holo_orange_light"
                     android:textSize="22sp" />
 
             </LinearLayout>

@@ -5,11 +5,11 @@
     -->
     <color name="colorPrimary">#7E98CE</color>
     <color name="colorPrimaryDark">#303f9f</color>
-    <color name="colorAccent">#4169E1</color>
+    <color name="colorAccent">#4169e1</color>
 
     <color name="col_background">#e0e0e0</color>
     <color name="col_toolbar">#e0e0e0</color>
-
+    <color name="white">#ffffff</color>
 
     <color name="trans">#00000000 </color>
     <color name="tv_border">#17113E </color>
