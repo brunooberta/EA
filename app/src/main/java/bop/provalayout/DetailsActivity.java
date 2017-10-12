@@ -17,7 +17,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -54,7 +53,7 @@ public class DetailsActivity extends AppCompatActivity {
 
     private String[] arr_itemsChecked = new String[]{};
     private int array_color[] = {Color.BLUE, Color.RED, Color.GREEN, Color.BLACK, Color.GRAY, Color.MAGENTA, Color.YELLOW, Color.WHITE};
-    private SeekBar seekBar_dt;
+    private SeekBar seekBar_m, seekBar_t;
     private TextView tv_length_0, tv_h_max_0, tv_h_min_0, tv_delta_h_pos_0, tv_delta_h_neg_0, tv_during_0, tv_name_0, tv_startdate_0, tv_endate_0;
     private TextView tv_length_1, tv_h_max_1, tv_h_min_1, tv_delta_h_pos_1, tv_delta_h_neg_1, tv_during_1, tv_name_1, tv_startdate_1, tv_endate_1;
     private Switch sw_visible_0;
@@ -132,7 +131,7 @@ public class DetailsActivity extends AppCompatActivity {
         }
         catch(Exception e){
 
-            Log.w("MY_CHECK","startMainActivity ERRORE["+ e.toString() +"]" );
+            gbl.myLog("startMainActivity ERRORE["+ e.toString() +"]" );
         }
     }
 
@@ -262,11 +261,11 @@ public class DetailsActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Time Charts";
+                    return getString(R.string.titolo_tab_1);
                 case 1:
-                    return "Metric Charts";
+                    return getString(R.string.titolo_tab_2);
                 case 2:
-                    return "Details";
+                    return getString(R.string.titolo_tab_3);
             }
             return null;
         }
@@ -288,7 +287,7 @@ public class DetailsActivity extends AppCompatActivity {
                 return String.format("%02.0f:%02.0f", h, m);
             }
             catch(Exception e){
-                Log.w("MY_CHECK", "MyXAxisValueFormatter.getFormattedValue --> ERRORE["+e.toString()+"]");
+                gbl.myLog( "MyXAxisValueFormatter.getFormattedValue --> ERRORE["+e.toString()+"]");
                 return null;
             }
         }
@@ -308,7 +307,7 @@ public class DetailsActivity extends AppCompatActivity {
                 return retValue;
             }
             catch(Exception e){
-                Log.w("MY_CHECK", "MyYAxisValueFormatter.getFormattedValue --> ERRORE["+e.toString()+"]");
+                gbl.myLog( "MyYAxisValueFormatter.getFormattedValue --> ERRORE["+e.toString()+"]");
                 return null;
             }
         }
@@ -432,7 +431,7 @@ public class DetailsActivity extends AppCompatActivity {
             }
         }
         catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in initializeDetails [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in initializeDetails [" + e.toString() + "]");
         }
     }
 
@@ -441,7 +440,7 @@ public class DetailsActivity extends AppCompatActivity {
             LineDataSet dataSet = null,dataSet_alt=null;// add entries to dataset
             final LineChart chart_distance = (LineChart) rootView.findViewById(R.id.chart_distance);
             final LineChart chart_height = (LineChart) rootView.findViewById(R.id.chart_height);
-            seekBar_dt = (SeekBar) rootView.findViewById(R.id.seekBar_dt);
+            seekBar_t = (SeekBar) rootView.findViewById(R.id.seekBar_dt);
             List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>(),dataSets_alt = new ArrayList<ILineDataSet>();
 
             DataPoint[] arr_dp = null, arr_dp_alt = null;
@@ -449,8 +448,8 @@ public class DetailsActivity extends AppCompatActivity {
             float x = 0, y = 0;
 
             if (arr_itemsChecked.length>1) {
-                if (seekBar_dt != null )
-                    seekBar_dt.setVisibility(SeekBar.INVISIBLE);
+                if (seekBar_t != null )
+                    seekBar_t.setVisibility(SeekBar.INVISIBLE);
             }
 
             String[] retTracksName = new String[arr_itemsChecked.length];
@@ -509,13 +508,14 @@ public class DetailsActivity extends AppCompatActivity {
             yAxis_L_distance.setValueFormatter(new DetailsActivity.MetricAxisValueFormatter());
             chart_distance.setTouchEnabled(true);
             chart_distance.setMarker(new DetailsActivity.CustomMarkerView(getApplicationContext(),R.layout.fragment_details_time_charts,"DIST-TEMPO"));
+
             chart_distance.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
                 @Override
                 public void onValueSelected(Entry e, Highlight h) {
                     try {
                         chart_height.highlightValue(e.getX(), h.getDataSetIndex(), false);
                     }
-                    catch(Exception ex){Log.w("MY_CHECK","onValueSelected -> ERRORE["+ex.toString()+"]");}
+                    catch(Exception ex){gbl.myLog("onValueSelected -> ERRORE["+ex.toString()+"]");}
                 }
                 @Override
                 public void onNothingSelected() {
@@ -525,9 +525,9 @@ public class DetailsActivity extends AppCompatActivity {
             chart_distance.setDescription(title_chart);
             chart_distance.invalidate(); // refresh
 
-            seekBar_dt.setMax((int)xAxis_distance.getAxisMaximum());
+            seekBar_t.setMax((int)xAxis_distance.getAxisMaximum());
 
-            seekBar_dt.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            seekBar_t.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     chart_distance.highlightValue(progress,0);
@@ -560,7 +560,7 @@ public class DetailsActivity extends AppCompatActivity {
                 public void onValueSelected(Entry e, Highlight h) {
                     try {
                         chart_distance.highlightValue(e.getX(), h.getDataSetIndex(), false);
-                    } catch (Exception ex) {Log.w("MY_CHECK", "onValueSelected -> ERRORE[" + ex.toString() + "]");}
+                    } catch (Exception ex) {gbl.myLog( "onValueSelected -> ERRORE[" + ex.toString() + "]");}
                 }
                 @Override
                 public void onNothingSelected() {
@@ -571,7 +571,7 @@ public class DetailsActivity extends AppCompatActivity {
             chart_height.invalidate(); // refresh
 
         }
-        catch(Exception e){Log.w("MY_CHECK", "onCreate --> ERRORE["+e.toString()+"]");}
+        catch(Exception e){gbl.myLog( "onCreate --> ERRORE["+e.toString()+"]");}
     }
 
     public void initializeMetricCharts(View rootView) {
@@ -580,7 +580,7 @@ public class DetailsActivity extends AppCompatActivity {
 
             final LineChart chart_hd = (LineChart) rootView.findViewById(R.id.chart_d_h);
 
-            seekBar_dt = (SeekBar) rootView.findViewById(R.id.seekBar_hd);
+            seekBar_m = (SeekBar) rootView.findViewById(R.id.seekBar_hd);
             List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>(),dataSets_alt = new ArrayList<ILineDataSet>(),dataSets_hd = new ArrayList<ILineDataSet>();
 
             DataPoint[] arr_dp = null, arr_dp_alt = null;
@@ -590,8 +590,8 @@ public class DetailsActivity extends AppCompatActivity {
             //arr_itemsChecked = myDatabase.getVisibleTrackId();
 
             if (arr_itemsChecked.length>1) {
-                if (seekBar_dt != null )
-                    seekBar_dt.setVisibility(SeekBar.INVISIBLE);
+                if (seekBar_m != null )
+                    seekBar_m.setVisibility(SeekBar.INVISIBLE);
             }
 
             String[] retTracksName = new String[arr_itemsChecked.length];
@@ -663,9 +663,9 @@ public class DetailsActivity extends AppCompatActivity {
             chart_hd.setDescription(title_chart);
             chart_hd.invalidate(); // refresh
 
-            seekBar_dt.setMax((int)xAxis_hd.getAxisMaximum());
+            seekBar_m.setMax((int)xAxis_hd.getAxisMaximum());
 
-            seekBar_dt.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            seekBar_m.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     chart_hd.highlightValue(progress,0);
@@ -676,7 +676,7 @@ public class DetailsActivity extends AppCompatActivity {
                 public void onStopTrackingTouch(SeekBar seekBar) { }
             });
         }
-        catch(Exception e){Log.w("MY_CHECK", "onCreate --> ERRORE["+e.toString()+"]");}
+        catch(Exception e){gbl.myLog( "onCreate --> ERRORE["+e.toString()+"]");}
     }
 
     private String[] getTracksName() {
@@ -690,7 +690,7 @@ public class DetailsActivity extends AppCompatActivity {
 
             return retTracksName;
         } catch (Exception e) {
-            Log.w("MY_CHECK", "getTracksName --> ERRORE[" + e.toString() + "]");
+            gbl.myLog( "getTracksName --> ERRORE[" + e.toString() + "]");
             return null;
         }
     }
@@ -757,7 +757,7 @@ public class DetailsActivity extends AppCompatActivity {
             return lst_dp_arr;
 
         } catch (Exception e) {
-            Log.w("MY_CHECK","ERRORE in getDistance ["+e.toString()+"]");
+            gbl.myLog("ERRORE in getDistance ["+e.toString()+"]");
             return null;
         }
     }
@@ -770,7 +770,7 @@ public class DetailsActivity extends AppCompatActivity {
             startActivity(intent);
             //finish();
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in goToTrackList [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in goToTrackList [" + e.toString() + "]");
         }
     }
     // *********** FINE GESTIONE TAB GRAFICI
@@ -830,12 +830,25 @@ public class DetailsActivity extends AppCompatActivity {
 
                 }
                 if (arr_itemsChecked.length == 1) {
-                    seekBar_dt.setProgress((int) e.getX());
-                    seekBar_dt.invalidate();
+                    switch(mtypeOfChart){
+                        case "DIST-TEMPO":
+                        case "ALT-TEMPO":
+                            seekBar_t.setProgress((int) e.getX());
+                            seekBar_t.invalidate();
+                            break;
+                        case "ALT-DIST":
+                            seekBar_m.setProgress((int) e.getX());
+                            seekBar_m.invalidate();
+                            break;
+                        default:
+                            tv_content.setText("");
+                            break;
+                    }
+
                 }
             }
 
-            catch(Exception ex){Log.w("MY_CHECK", "refreshContent --> ERRORE["+ex.toString()+"]");};
+            catch(Exception ex){gbl.myLog( "refreshContent --> ERRORE["+ex.toString()+"]");};
         }
 
     }
@@ -861,7 +874,7 @@ public class DetailsActivity extends AppCompatActivity {
             //finish();
 
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in goToShare [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in goToShare [" + e.toString() + "]");
         }
     }
 }

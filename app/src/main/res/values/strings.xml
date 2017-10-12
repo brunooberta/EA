@@ -125,6 +125,15 @@
     <string name="str_app_in_following">Following mode active</string>
     <string name="str_app_in_wp_selected">Selected waypoint mode active.</string>
 
+    <!-- GRAFICI -->
+    <string name="titolo_dist_tempo">Distance / Time</string>
+    <string name="titolo_alt_tempo">Altitude / Time</string>
+    <string name="titolo_alt_dist">Altitude / Distance</string>
+
+    <string name="titolo_tab_1">Time Charts</string>
+    <string name="titolo_tab_2">Altimetry Charts</string>
+    <string name="titolo_tab_3">Details</string>
+
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
