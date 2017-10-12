@@ -26,7 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.CompoundButton;
-import android.widget.GridLayout;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -375,7 +375,7 @@ public class DetailsActivity extends AppCompatActivity {
                     });
                 } else {
 
-                    GridLayout gl = (GridLayout)rootView.findViewById(R.id.gridLayout);
+                    LinearLayout gl = (LinearLayout)rootView.findViewById(R.id.lay_frag_details);
                     for( int j = 0; j < gl.getChildCount(); j++ ){
 
                         if (gl.getChildAt(j).getVisibility() == TextView.INVISIBLE)
