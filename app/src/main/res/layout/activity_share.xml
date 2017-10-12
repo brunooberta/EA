@@ -76,7 +76,7 @@
                 android:background="@drawable/share_style"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="TextView"
-                android:textColor="@android:color/holo_orange_light"
+                android:textColor="@color/colorAccent"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -105,7 +105,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text="Length:"
-                    android:textColor="@android:color/holo_orange_light"
+                    android:textColor="@color/colorAccent"
                     android:textSize="22sp" />
 
                 <TextView
@@ -116,7 +116,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text=""
-                    android:textColor="@android:color/holo_orange_light"
+                    android:textColor="@color/colorAccent"
                     android:textSize="22sp" />
 
             </LinearLayout>
@@ -136,7 +136,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text="Duration:"
-                    android:textColor="@android:color/holo_orange_light"
+                    android:textColor="@color/colorAccent"
                     android:textSize="22sp" />
 
                 <TextView
@@ -147,7 +147,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text=""
-                    android:textColor="@android:color/holo_orange_light"
+                    android:textColor="@color/colorAccent"
                     android:textSize="22sp" />
 
             </LinearLayout>
@@ -167,7 +167,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text="D Positive:"
-                    android:textColor="@android:color/holo_orange_light"
+                    android:textColor="@color/colorAccent"
                     android:textSize="22sp" />
 
                 <TextView
@@ -178,7 +178,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text=""
-                    android:textColor="@android:color/holo_orange_light"
+                    android:textColor="@color/colorAccent"
                     android:textSize="22sp" />
 
             </LinearLayout>
@@ -198,7 +198,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text="D Negative:"
-                    android:textColor="@android:color/holo_orange_light"
+                    android:textColor="@color/colorAccent"
                     android:textSize="22sp" />
 
                 <TextView
@@ -209,7 +209,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text=""
-                    android:textColor="@android:color/holo_orange_light"
+                    android:textColor="@color/colorAccent"
                     android:textSize="22sp" />
 
             </LinearLayout>
