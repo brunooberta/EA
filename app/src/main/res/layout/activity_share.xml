@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/col_background"
-    tools:context="bop.provalayout.ShareActivity">
+    tools:context="bop.ea_free.ShareActivity">
 
     <LinearLayout
         android:layout_width="0dp"

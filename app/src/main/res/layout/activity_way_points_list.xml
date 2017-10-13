@@ -5,7 +5,7 @@
     android:id="@+id/wp_constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="bop.provalayout.WayPointsListActivity">
+    tools:context="bop.ea_free.WayPointsListActivity">
 
 
     <android.support.design.widget.CoordinatorLayout

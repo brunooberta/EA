@@ -40,14 +40,14 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="1">
 
-				<bop.provalayout.EA_EditText
+				<bop.ea_free.EA_EditText
 					android:id="@+id/fe_editText"
 					android:layout_width="fill_parent"
 					android:layout_height="wrap_content"
 					android:layout_alignParentLeft="true"
 					android:layout_weight="1"
 					android:ems="10"
-					android:inputType="none"></bop.provalayout.EA_EditText>
+					android:inputType="none"></bop.ea_free.EA_EditText>
 
 			</android.support.design.widget.TextInputLayout>
 

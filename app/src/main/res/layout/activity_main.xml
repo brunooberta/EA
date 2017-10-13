@@ -5,7 +5,7 @@
     android:id="@+id/coordLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="bop.provalayout.MainActivity">
+    tools:context="bop.ea_free.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

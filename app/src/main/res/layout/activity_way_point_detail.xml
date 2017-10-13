@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/col_background"
-    tools:context="bop.provalayout.WayPointDetailActivity">
+    tools:context="bop.ea_free.WayPointDetailActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/tb_wp_det_activity"
@@ -100,7 +100,7 @@
                         app:hintTextAppearance="@style/TextHint">
 
                         <!--android:drawableRight="@android:drawable/ic_delete"-->
-                        <bop.provalayout.EA_EditText
+                        <bop.ea_free.EA_EditText
                             android:id="@+id/et_wp_name"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -121,7 +121,7 @@
                         android:layout_height="wrap_content"
                         app:hintTextAppearance="@style/TextHint">
 
-                        <bop.provalayout.EA_EditText
+                        <bop.ea_free.EA_EditText
                             android:id="@+id/et_wp_lat"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -141,7 +141,7 @@
                         android:layout_height="wrap_content"
                         app:hintTextAppearance="@style/TextHint">
 
-                        <bop.provalayout.EA_EditText
+                        <bop.ea_free.EA_EditText
                             android:id="@+id/et_wp_lon"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -159,7 +159,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-                        <bop.provalayout.EA_EditText
+                        <bop.ea_free.EA_EditText
                             android:id="@+id/et_wp_alt"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -178,7 +178,7 @@
                         android:layout_height="wrap_content"
                         app:hintTextAppearance="@style/TextHint">
 
-                        <bop.provalayout.EA_EditText
+                        <bop.ea_free.EA_EditText
                             android:id="@+id/et_wp_descr"
                             android:layout_width="match_parent"
                             android:layout_height="95dp"

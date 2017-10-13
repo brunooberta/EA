@@ -65,7 +65,7 @@
                 android:textColorHint="@color/calendar_background"
                 app:hintTextAppearance="@style/TextHint">
 
-                <bop.provalayout.EA_EditText
+                <bop.ea_free.EA_EditText
                     android:id="@+id/et_awp_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -91,7 +91,7 @@
                 android:textColorHint="@color/calendar_background"
                 app:hintTextAppearance="@style/TextHint">
 
-                <bop.provalayout.EA_EditText
+                <bop.ea_free.EA_EditText
                     android:id="@+id/et_awp_alt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

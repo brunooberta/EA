@@ -3,27 +3,27 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="bop.provalayout.SettingsActivity$DEFAULT_PreferenceFragment"
+        android:fragment="bop.ea_free.SettingsActivity$DEFAULT_PreferenceFragment"
         android:icon="@drawable/def_settings"
         android:title="Default Settings" />
 
     <header
-        android:fragment="bop.provalayout.SettingsActivity$GPS_PreferenceFragment"
+        android:fragment="bop.ea_free.SettingsActivity$GPS_PreferenceFragment"
         android:icon="@drawable/gps"
         android:title="GPS" />
 
     <header
-        android:fragment="bop.provalayout.SettingsActivity$TrackingPreferenceFragment"
+        android:fragment="bop.ea_free.SettingsActivity$TrackingPreferenceFragment"
         android:icon="@drawable/following"
         android:title="Following" />
 
     <header
-        android:fragment="bop.provalayout.SettingsActivity$OfflineMapsPreferenceFragment"
+        android:fragment="bop.ea_free.SettingsActivity$OfflineMapsPreferenceFragment"
         android:icon="@drawable/offlinemap"
         android:title="Offline Map" />
 
     <header
-        android:fragment="bop.provalayout.SettingsActivity$CreditsPreferenceFragment"
+        android:fragment="bop.ea_free.SettingsActivity$CreditsPreferenceFragment"
         android:icon="@drawable/copyright"
         android:title="Credits" />
 

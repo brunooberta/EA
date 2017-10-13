@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="bop.provalayout">
+    package="bop.ea_free">
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -43,47 +43,47 @@
             android:value="@string/facebook_app_id" />
 
         <activity
-            android:name="bop.provalayout.MainActivity"
+            android:name="bop.ea_free.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize"/>
 
         <activity
-            android:name="bop.provalayout.TracksListActivity"
+            android:name="bop.ea_free.TracksListActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="bop.provalayout.FileexplorerActivity"
+            android:name="bop.ea_free.FileexplorerActivity"
             android:label="File Explorer"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="bop.provalayout.FileChooser"
+            android:name="bop.ea_free.FileChooser"
             android:label="Choose File"
             android:theme="@android:style/Theme.Holo.Light"
         >
             <action android:name="com.example.fileexplorer.FileChooser" />
         </activity>
         <activity
-            android:name="bop.provalayout.DetailsActivity"
+            android:name="bop.ea_free.DetailsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="bop.provalayout.WayPointsListActivity"
+            android:name="bop.ea_free.WayPointsListActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize"/>
         <activity
-            android:name="bop.provalayout.WayPointDetailActivity"
+            android:name="bop.ea_free.WayPointDetailActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden"
             android:configChanges="orientation|keyboardHidden|screenSize"/>
         <activity
-            android:name="bop.provalayout.SettingsActivity"
+            android:name="bop.ea_free.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="bop.provalayout.MainActivity">
+            android:parentActivityName="bop.ea_free.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="bop.provalayout.MainActivity" />
+                android:value="bop.ea_free.MainActivity" />
         </activity>
         <activity
-            android:name="bop.provalayout.SplashActivity"
+            android:name="bop.ea_free.SplashActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -93,12 +93,12 @@
         </activity>
 
         <service
-            android:name="bop.provalayout.LocationService"
+            android:name="bop.ea_free.LocationService"
             android:enabled="true"
             android:exported="true" />
 
         <activity
-            android:name="bop.provalayout.FBLoginActivity"
+            android:name="bop.ea_free.FBLoginActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="com.facebook.FacebookActivity"
@@ -115,7 +115,7 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-        <activity android:name="bop.provalayout.ShareActivity"
+        <activity android:name="bop.ea_free.ShareActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <provider
@@ -123,8 +123,8 @@
             android:authorities="com.facebook.app.FacebookContentProvider1553731234648288"
             android:exported="true" />
 
-        <activity android:name="bop.provalayout.WPListActivity" />
-        <activity android:name="bop.provalayout.CalendarActivity"
+        <activity android:name="bop.ea_free.WPListActivity" />
+        <activity android:name="bop.ea_free.CalendarActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
 
     </application>
