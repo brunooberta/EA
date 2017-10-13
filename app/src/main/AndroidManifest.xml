@@ -58,10 +58,17 @@
         <activity
             android:name="bop.provalayout.FileChooser"
             android:label="Choose File"
-            android:theme="@android:style/Theme.Holo.Light"
-        >
-            <action android:name="com.example.fileexplorer.FileChooser" />
+            android:theme="@android:style/Theme.Holo.Light">
+        <action android:name="com.example.fileexplorer.FileChooser" />
         </activity>
+
+
+        <activity
+            android:name="bop.provalayout.EAFileChooserActivity"
+            android:label="Choose File"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+
         <activity
             android:name="bop.provalayout.DetailsActivity"
             android:theme="@style/AppTheme.NoActionBar" />

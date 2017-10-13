@@ -55,7 +55,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             ArrayList<String> ext = new ArrayList<>();
             ext.add("gpx");
 
-            Intent intent = new Intent(mContext, FileChooser.class);
+            Intent intent = new Intent(mContext, EAFileChooserActivity.class);
             intent.putStringArrayListExtra("extension", ext);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mContext.startActivity(intent);

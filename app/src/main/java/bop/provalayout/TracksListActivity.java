@@ -338,7 +338,8 @@ public class TracksListActivity extends AppCompatActivity {
             ArrayList<String> ext = new ArrayList<>();
             ext.add("gpx");
 
-            Intent intent = new Intent(getApplicationContext(), FileChooser.class);
+            //Intent intent = new Intent(getApplicationContext(), FileChooser.class);
+            Intent intent = new Intent(getApplicationContext(), EAFileChooserActivity.class);
             intent.putStringArrayListExtra("extension", ext);
             intent.putExtra("isGpx", true);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

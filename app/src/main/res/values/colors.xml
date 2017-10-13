@@ -3,20 +3,20 @@
     <!--
     <color name="colorPrimary">#3F51B5</color>
     -->
-    <color name="colorPrimary">#7E98CE</color>
-    <color name="colorPrimaryDark">#303f9f</color>
+    <color name="colorPrimary">#9fa8da</color>
+    <color name="colorPrimaryDark">#6f79a8</color>
     <color name="colorAccent">#4169e1</color>
 
 
-    <color name="col_background">#e0e0e0</color>
-    <color name="col_toolbar">#e0e0e0</color>
+    <color name="col_background">#9fa8da</color>
+    <color name="col_toolbar">#9fa8da</color>
     <color name="white">#ffffff</color>
     <color name="black">@android:color/black</color>
 
     <color name="trans">#00000000 </color>
     <color name="tv_border">#17113E </color>
 
-    <color name="share_style_back_color">#BCC6CC </color>
+    <color name="share_style_back_color">#d1d9ff </color>
     <color name="share_style_border_color">#151B8D </color>
 
     <color name="calendar_background">@color/col_background</color>

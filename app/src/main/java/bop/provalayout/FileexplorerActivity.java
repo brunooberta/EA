@@ -332,10 +332,11 @@ public class FileexplorerActivity extends AppCompatActivity {
     }
 
     public void getfile(View view){
-    	Intent intent1 = new Intent(this, FileChooser.class);
+    	Intent intent1 = new Intent(this, EAFileChooserActivity.class);
         intent1.putStringArrayListExtra("extension", ext);
         intent1.putExtra("arr_trackId",arr_trackId);
         intent1.putExtra("selected_date",selected_date);
+        intent1.putExtra("isGpx", isGpx);
 
         startActivityForResult(intent1,REQUEST_PATH);
     }
