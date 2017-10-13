@@ -98,7 +98,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity{
@@ -346,7 +348,9 @@ public class MainActivity extends AppCompatActivity{
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                showGPSDisabledAlertToUser();
             }
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)   != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
                 return;
             }
 
@@ -759,8 +763,11 @@ public class MainActivity extends AppCompatActivity{
                 }
                 return;
             }
+
         }
     }
+
+
 
     @Override
     public void onBackPressed() {
@@ -2647,7 +2654,7 @@ public class MainActivity extends AppCompatActivity{
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     try {
                                         isFollowing = false;
-                                        showNotification();
+                                            showNotification();
                                         setTrackToFollow_OSM(gbl.getSelectTrack_osm().getTrackId(), "0");
                                         img_manageFollow.setImageResource(R.mipmap.follow_green);
                                         img_outOfPath.setVisibility(ImageView.INVISIBLE);
@@ -2997,6 +3004,7 @@ public class MainActivity extends AppCompatActivity{
                         new DialogInterface.OnClickListener(){
                             public void onClick(DialogInterface dialog, int id){
                                 Intent callGPSSettingIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+
                                 startActivity(callGPSSettingIntent);
                             }
                         });
@@ -3056,70 +3064,73 @@ public class MainActivity extends AppCompatActivity{
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private void showNotification(){
-        try {
+    private void showNotification() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            try {
+                int message_id, small_icon_id;
+                ConstraintLayout main_constrLayout = (ConstraintLayout) findViewById(R.id.mainConstraintLayout);
+                if (isRecording) {
+                    if (gbl.isPaused())
+                        main_constrLayout.setBackgroundColor(Color.YELLOW);
+                    else
+                        main_constrLayout.setBackgroundColor(Color.RED);
+                } else
+                    main_constrLayout.setBackgroundColor(Color.WHITE);
 
-            int message_id, small_icon_id;
-            ConstraintLayout main_constrLayout = (ConstraintLayout) findViewById(R.id.mainConstraintLayout);
-            if (isRecording) {
-                if (gbl.isPaused())
-                    main_constrLayout.setBackgroundColor(Color.YELLOW);
-                else
-                    main_constrLayout.setBackgroundColor(Color.RED);
-            } else
-                main_constrLayout.setBackgroundColor(Color.WHITE);
-
-            if (isRecording) {
-                if (gbl.isPaused()) {
-                    message_id = R.string.str_reg_in_pausa;
-                    small_icon_id = R.drawable.pause_dot;
-                } else {
-                    message_id = R.string.str_reg_in_corso;
-                    small_icon_id = R.drawable.rec_dot;
-                }
-            } else {
-                if (isFollowing) {
-                    message_id = R.string.str_app_in_following;
-                    small_icon_id = R.drawable.following_dot;
-                } else {
-                    if (is_wp_selected) {
-                        message_id = R.string.str_app_in_wp_selected;
-                        small_icon_id = R.drawable.wpselected_dot;
+                if (isRecording) {
+                    if (gbl.isPaused()) {
+                        message_id = R.string.str_reg_in_pausa;
+                        small_icon_id = R.drawable.pause_dot;
                     } else {
-                        message_id = R.string.str_app_attiva;
-                        small_icon_id = R.drawable.normal_dot;
+                        message_id = R.string.str_reg_in_corso;
+                        small_icon_id = R.drawable.rec_dot;
+                    }
+                } else {
+                    if (isFollowing) {
+                        message_id = R.string.str_app_in_following;
+                        small_icon_id = R.drawable.following_dot;
+                    } else {
+                        if (is_wp_selected) {
+                            message_id = R.string.str_app_in_wp_selected;
+                            small_icon_id = R.drawable.wpselected_dot;
+                        } else {
+                            message_id = R.string.str_app_attiva;
+                            small_icon_id = R.drawable.normal_dot;
+                        }
                     }
                 }
+
+                bMap_largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
+
+                Intent resultIntent = new Intent(this, MainActivity.class);
+
+                PendingIntent resultPendingIntent =
+                        PendingIntent.getActivity(
+                                this,
+                                0,
+                                resultIntent,
+                                PendingIntent.FLAG_UPDATE_CURRENT
+                        );
+
+
+                NotificationCompat.Builder mBuilder = null;
+                mBuilder = new NotificationCompat.Builder(this)
+                        .setPriority(Notification.PRIORITY_MAX)
+                        .setLargeIcon(bMap_largeIcon)
+                        .setSmallIcon(small_icon_id)
+                        .setContentTitle(getString(R.string.app_name))
+                        .setContentText(getString(message_id))
+                        .setContentIntent(resultPendingIntent);
+
+                int mNotificationId = 001;
+                mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                mNotifyMgr.notify(mNotificationId, mBuilder.build());
+
+
+            } catch (Exception e) {
+                gbl.myLog("ERRORE Notification [" + e.toString() + "]");
             }
-
-            bMap_largeIcon = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-
-            Intent resultIntent = new Intent(this, MainActivity.class);
-
-            PendingIntent resultPendingIntent =
-                    PendingIntent.getActivity(
-                            this,
-                            0,
-                            resultIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT
-                    );
-
-            NotificationCompat.Builder mBuilder = null;
-            mBuilder =  new NotificationCompat.Builder(this)
-                    .setPriority(Notification.PRIORITY_MAX)
-                    .setLargeIcon(bMap_largeIcon)
-                    .setSmallIcon(small_icon_id)
-                    .setContentTitle(getString(R.string.app_name))
-                    .setContentText(getString(message_id))
-                    .setContentIntent(resultPendingIntent);
-
-            int mNotificationId = 001;
-            mNotifyMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            mNotifyMgr.notify(mNotificationId, mBuilder.build());
-
-
         }
-        catch(Exception e){ gbl.myLog("ERRORE Notification ["+e.toString()+"]");}
     }
 
 
@@ -3211,5 +3222,6 @@ public class MainActivity extends AppCompatActivity{
 
         return path;
     }
+
 
 }
