@@ -7,12 +7,17 @@
     <color name="colorPrimaryDark">#303f9f</color>
     <color name="colorAccent">#4169e1</color>
 
+
     <color name="col_background">#e0e0e0</color>
     <color name="col_toolbar">#e0e0e0</color>
     <color name="white">#ffffff</color>
+    <color name="black">@android:color/black</color>
 
     <color name="trans">#00000000 </color>
     <color name="tv_border">#17113E </color>
+
+    <color name="share_style_back_color">#BCC6CC </color>
+    <color name="share_style_border_color">#151B8D </color>
 
     <color name="calendar_background">@color/col_background</color>
     <color name="calendar_currentday_bg">@android:color/holo_red_light</color>

@@ -2449,7 +2449,7 @@ public class MainActivity extends AppCompatActivity{
             et_awp_name.setText("MY WAYPOINT NAME"); // default
 
             final Spinner mySpinner = (Spinner) dlg.findViewById(R.id.sp_awp_icon);
-            mySpinner.setAdapter(new SpinnerAdapter(this, R.layout.spinner_row_layout, getAllList()));
+            mySpinner.setAdapter(new SpinnerAdapter(this, R.layout.spinner_row_layout, getAllList(),false));
 
             if(isRecording)
                 et_awp_alt.setText(""+altitude);

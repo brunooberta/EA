@@ -78,7 +78,7 @@ public class WayPointDetailActivity extends AppCompatActivity {
             sp_icons = (Spinner) findViewById(R.id.sp_icon);
             spinner_items = getAllList();
 
-            sp_icons.setAdapter(new SpinnerAdapter(this, R.layout.spinner_row_layout, spinner_items));
+            sp_icons.setAdapter(new SpinnerAdapter(this, R.layout.spinner_row_layout, spinner_items,true));
 
             Bundle extras = getIntent().getExtras();
             if (extras != null) {
