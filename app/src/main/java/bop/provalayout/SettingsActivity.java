@@ -4,6 +4,8 @@ package bop.provalayout;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
@@ -44,7 +46,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     static String pref_offlinemap_zoom_max_key, pref_offlinemap_zoom_max_summary;
     static String pref_offlinemap_zoom_min_key, pref_offlinemap_zoom_min_summary;
     static String pref_def_key_zoom, pref_def_summary_zoom;
-
+    static String pref_credits_appvs_key;
 
     private static Context mContext;
 
@@ -189,7 +191,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         pref_offlinemap_zoom_max_summary = getResources().getString(R.string.pref_offlinemap_zoom_max_summary);
         pref_offlinemap_zoom_min_summary = getResources().getString(R.string.pref_offlinemap_zoom_min_summary);
         pref_def_summary_zoom = getResources().getString(R.string.pref_def_summary_zoom);
-
+        pref_credits_appvs_key =  getResources().getString(R.string.pref_credits_appvs_key);
 
     }
 
@@ -370,6 +372,19 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_credits);
+
+            PackageManager manager = mContext.getPackageManager();
+            PackageInfo info = null;
+            try {
+                info = manager.getPackageInfo(mContext.getPackageName(), 0);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+            String version = info.versionName;
+
+            Preference pref_app_vs = findPreference(pref_credits_appvs_key );
+            pref_app_vs.setSummary(version);
+
             setHasOptionsMenu(true);
         }
 

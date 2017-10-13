@@ -2,11 +2,11 @@
 
     <EditTextPreference
         android:editable="false"
-        android:key="@string/pref_credits_copyright_key"
+        android:key="@string/pref_credits_appname_key"
         android:selectAllOnFocus="true"
         android:selectable="false"
-        android:summary="@string/pref_credits_copyright_summary"
-        android:title="@string/pref_credits_copyright_title" />
+        android:summary="@string/app_name"
+        android:title="@string/pref_credits_appname_title" />
 
     <EditTextPreference
         android:editable="false"
@@ -14,6 +14,14 @@
         android:selectAllOnFocus="true"
         android:selectable="false"
         android:summary="@string/pref_credits_appvs_summary"
-        android:title="@string/pref_credits_appvs_title" />
+        android:title="@string/pref_credits_appvs_title" /> />
+
+    <EditTextPreference
+        android:editable="false"
+        android:key="@string/pref_credits_copyright_key"
+        android:selectAllOnFocus="true"
+        android:selectable="false"
+        android:summary="@string/pref_credits_copyright_summary"
+        android:title="@string/pref_credits_copyright_title" />
 
 </PreferenceScreen>

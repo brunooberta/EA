@@ -276,6 +276,10 @@
     <string name="pref_credits_appvs_title">App Version</string>
     <string name="pref_credits_appvs_summary">1.0.0</string>
 
+    <string name="pref_credits_appname_key">appvs_name</string>
+    <string name="pref_credits_appname_title">App Name</string>
+    <string name="pref_credits_appname_summary">@string/app_name</string>
+
     <!-- TRACK_OSM.java -->
     <string name="start_marker_title">START</string>
     <string name="end_marker_title">END</string>
