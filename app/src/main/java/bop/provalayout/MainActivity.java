@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity{
     private Typeface iconFont;
     private Dialog dlg_rec = null,  dlg_foll = null;
 
-    private long T_STOP = 0; // tempo limite in minuti di attività nella versione FREE
+    private long T_STOP = 20; // tempo limite in minuti di attività nella versione FREE
 
     private static int recMarkerId = 0;
 
