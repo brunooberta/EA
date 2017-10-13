@@ -14,12 +14,13 @@ import java.util.List;
 
 public class Track_OSM_Collection {
 
-
-
     private ArrayList<Track_OSM> all_track_osm = new ArrayList<Track_OSM>();
     private Context mCtx = null;
     private GPSDatabase mDb = null;
     private MapView mMap;
+    private int size = -1;
+    private Global gbl = new Global();
+
 
     public Track_OSM_Collection(GPSDatabase db, MapView map, Context ctx) {
 
@@ -34,7 +35,12 @@ public class Track_OSM_Collection {
             all_track_osm.add(track);
         }
 
+        size = lst_trackId.size();
+
     }
+
+
+    public int getSize() {return size;}
 
     public ArrayList<Track_OSM> get_All_track_osm() {
         return all_track_osm;
@@ -84,5 +90,21 @@ public class Track_OSM_Collection {
         cursor.close();
 
         return trackId_lst;
+    }
+
+    public void remove_Marker_From_Track(String trackId, int markerId){
+
+        for(Track_OSM t:all_track_osm){
+            if(t.getTrackId().equals(trackId)){
+
+                for(EA_Marker m:t.lst_waypoints_marker){
+                    if(m.getId()==markerId){
+                          t.removeMarker(markerId);
+                        return;
+                    }
+                }
+            }
+        }
+
     }
 }

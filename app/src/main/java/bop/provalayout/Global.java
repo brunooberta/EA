@@ -80,8 +80,6 @@ public class Global {
         pref_default_zoom = getPreferenceValue_int(R.string.pref_def_key_zoom, context);
     }
 
-
-
     /**
      * This method converts dp unit to equivalent pixels, depending on device density.
      *

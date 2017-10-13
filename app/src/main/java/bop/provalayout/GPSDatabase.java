@@ -258,7 +258,8 @@ public class GPSDatabase {
 
     }
 
-    public void ins_WayPoint(String id, String trackId, String lat, String lon, String alt, String name, String cmt, String desc, String sym){
+    public int ins_WayPoint(String id, String trackId, String lat, String lon, String alt, String name, String cmt, String desc, String sym){
+        int wp_id=-1;
         db.beginTransaction();
         try{
             ContentValues value = new ContentValues();
@@ -275,12 +276,21 @@ public class GPSDatabase {
             db.insert("waypoints", null, value);
 
             db.setTransactionSuccessful();
+
+            Cursor cursor = db.rawQuery("SELECT max(id) FROM waypoints WHERE trackId="+trackId,null);
+            cursor.moveToFirst();
+            wp_id = cursor.getInt(0);
+            cursor.close();
+
+
         }
         catch (Exception e){
             Log.w("MY_CHECK","ERRORE in ins_WayPoint["+ e.toString() +"]");
             db.endTransaction();
+            return -2;
         } finally {
             db.endTransaction();
+            return wp_id;
         }
     }
 
@@ -466,7 +476,6 @@ public class GPSDatabase {
         public dates( String startDate,   String endDate) throws ParseException {
             mStartDate = startDate;
             mEndDate = endDate;
-Log.w("MY_CHECK","mStartDate["+mStartDate+"] mEndDate["+mEndDate+"] ");
             Date date_start = dateFormat.parse(startDate);
             Date date_end = dateFormat.parse(endDate);
 

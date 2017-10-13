@@ -122,6 +122,7 @@ public class MainActivity extends AppCompatActivity{
     private static boolean  isJustCreated = false, // Inizialmente è FALSE alla prima esecuzione di OnCreate diventa TRUE
                             isJustStarted=false;   // Inizialmente è FALSE alla prima esecuzione di OmStart diventa TRUE
     private static boolean isFollowing = false;
+    private static boolean drawisFollowing = false;
     private static String altitude = "?";
     private static long stop_timer=0,
                         showLocation_timer = 0,
@@ -158,8 +159,8 @@ public class MainActivity extends AppCompatActivity{
     private int curr_wp_index = -1;     // indice del marker del wp che sto scorrendo sulla traccia con NEXT/PREV
     private int closestMarker_index = 0;    // indice del punto più vicino a quello tappato sullo schermo
     private org.osmdroid.views.overlay.Marker selected_marker_wp = null; // marker del wp che ho selezionato con il pulsante
-    private org.osmdroid.views.overlay.Marker current_marker_wp = null; // marker del wp che si andrà  and aggiungere o alla traccia selezionata  o alla traccia generica
-    private ArrayList<org.osmdroid.views.overlay.Marker> fake_track_generic_marker_wp = new ArrayList<>(); // Lista dei marker dei WP non legati ad alcuna traccia
+    private EA_Marker current_marker_wp = null; // marker del wp che si andrà  and aggiungere o alla traccia selezionata  o alla traccia generica
+    private ArrayList<EA_Marker> fake_track_generic_marker_wp = new ArrayList<>(); // Lista dei marker dei WP non legati ad alcuna traccia
     private Global gbl = new Global();
     private Handler myHandler = new Handler();
     private MyRunnable myRunnable = new MyRunnable();
@@ -188,6 +189,8 @@ public class MainActivity extends AppCompatActivity{
     private Dialog dlg_rec = null,  dlg_foll = null;
 
     private long T_STOP = 0; // tempo limite in minuti di attività nella versione FREE
+
+    private static int recMarkerId = 0;
 
     //Riceve i messaggi dal Servizio di localizzazione LocationService
     public class MyBroadcastReceiver extends BroadcastReceiver {
@@ -598,7 +601,7 @@ public class MainActivity extends AppCompatActivity{
 
             if(gbl.getTrackOsmCollection()==null){
 
-                    gbl.setTrackOsmCollection( new Track_OSM_Collection(myDatabase,map_osm,getApplicationContext()));
+                gbl.setTrackOsmCollection( new Track_OSM_Collection(myDatabase,map_osm,getApplicationContext()));
             }
 
             drawAllTracks_OSM();
@@ -800,7 +803,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void show_wp(String operation){
-        ArrayList<org.osmdroid.views.overlay.Marker> wp_list = new ArrayList<>();
+        ArrayList<EA_Marker> wp_list = new ArrayList<>();
         try {
             if (gbl.getSelectTrack_osm() != null) {
                 wp_list.add(gbl.getSelectTrack_osm().startMarker);
@@ -856,7 +859,7 @@ public class MainActivity extends AppCompatActivity{
                     int y = map_osm.getHeight() / 2;
                     int x = map_osm.getWidth() / 2;
                     gp = (GeoPoint) proj.fromPixels(x, y);
-                    current_marker_wp = new org.osmdroid.views.overlay.Marker(map_osm);
+                    current_marker_wp = new EA_Marker(map_osm,recMarkerId++);
                     current_marker_wp.setPosition(gp);
 
                     wp_LatLng = convert_GeoPoint_to_LatLng(gp);
@@ -864,7 +867,7 @@ public class MainActivity extends AppCompatActivity{
                     gp = gbl.getSelectTrack_osm().lst_marker.get(closestMarker_index).getPosition();
                     wp_LatLng = convert_GeoPoint_to_LatLng(gp);
 
-                    current_marker_wp = new org.osmdroid.views.overlay.Marker(map_osm);
+                    current_marker_wp = new EA_Marker(map_osm,recMarkerId++);
                     current_marker_wp.setPosition(gp);
                     current_marker_wp.setSnippet(gbl.getSelectTrack_osm().lst_marker.get(closestMarker_index).getSnippet());
 
@@ -996,15 +999,10 @@ public class MainActivity extends AppCompatActivity{
 
                         near_marker = getClosestMarker(ev);
 
-                        // 2017.09.06 --> START
-                        // int treshold_distance = 1000;
-                        // if (near_marker != null && d < treshold_distance) {
-                        // 2017.09.06 --> END
-
                         if (near_marker != null ) {
                             map_osm.getOverlays().add(near_marker);
                             near_marker.showInfoWindow();
-                            map_osm.invalidate();
+                            //map_osm.invalidate();
 
                             showSelectTrackLayout(true, closestMarker_index, near_marker.getPosition());
                         } else {
@@ -1828,11 +1826,11 @@ public class MainActivity extends AppCompatActivity{
                 }
 
                 //Disegna sulla mappa i marker dei WayPoints generici
-                int WP_NAME = 3, WP_LAT = 4, WP_LON = 5, WP_ALT = 6, WP_CMT = 6, WP_DESC = 7, WP_SYM = 9;
+                int WP_ID = 1, WP_NAME = 3, WP_LAT = 4, WP_LON = 5, WP_ALT = 6, WP_CMT = 6, WP_DESC = 7, WP_SYM = 9;
                 Cursor cur = myDatabase.get_waypoints(FAKE_TRACK_GENERIC_WP);
                 cur.moveToFirst();
                 for (int i = 0; i < cur.getCount(); i++) {
-                    final org.osmdroid.views.overlay.Marker m = new org.osmdroid.views.overlay.Marker(map_osm);
+                    final EA_Marker m = new EA_Marker(map_osm,cur.getInt(WP_ID));
                     m.setPosition(new GeoPoint(cur.getDouble(WP_LAT), cur.getDouble(WP_LON)));
                     m.setTitle(cur.getString(WP_NAME));
                     m.setIcon(ResourcesCompat.getDrawable(getResources(), cur.getInt(WP_SYM), null));
@@ -2484,15 +2482,15 @@ public class MainActivity extends AppCompatActivity{
                         Double lon = wp_LatLng.longitude;
                         GeoPoint gp = new GeoPoint(lat, lon);
 
-                        Save_WP_on_DB(trackId, et_awp_name.getText().toString(), lat.toString(), lon.toString(), et_awp_alt.getText().toString(), ((ListItem) mySpinner.getSelectedItem()).imgThumb);
-
-                        org.osmdroid.views.overlay.Marker m = new org.osmdroid.views.overlay.Marker(map_osm);
+                        int wp_id = Save_WP_on_DB(trackId, et_awp_name.getText().toString(), lat.toString(), lon.toString(), et_awp_alt.getText().toString(), ((ListItem) mySpinner.getSelectedItem()).imgThumb);
+                        EA_Marker m = new EA_Marker(map_osm,wp_id);
 
                         m.setPosition(gp);
                         m.setTitle(et_awp_name.getText().toString());
                         m.setIcon(ResourcesCompat.getDrawable(getResources(), ((ListItem) mySpinner.getSelectedItem()).imgThumb, null));
 
                         if (!isRecording) {
+                            current_marker_wp.setId(wp_id);
                             current_marker_wp.setTitle(et_awp_name.getText().toString());
 
                             if (gbl.getSelectTrack_osm() != null)
@@ -2967,11 +2965,11 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-    private void Save_WP_on_DB(String trackId, String name, String lat, String lon, String alt, int icon_res_id){
+    private int Save_WP_on_DB(String trackId, String name, String lat, String lon, String alt, int icon_res_id){
 
         String id="", cmt="", desc="", sym=""+icon_res_id;
 
-        myDatabase.ins_WayPoint(id,trackId, lat, lon, alt, name, cmt, desc, sym);
+        return myDatabase.ins_WayPoint(id,trackId, lat, lon, alt, name, cmt, desc, sym);
     }
 
     public enum myInpuType {

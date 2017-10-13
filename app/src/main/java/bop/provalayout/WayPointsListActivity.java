@@ -144,8 +144,10 @@ public class WayPointsListActivity extends AppCompatActivity {
         }
     }
 
-    private void remove_wp(String id){
+    private void remove_wp(String id){myDatabase.del_WayPoint(id);}
+    private void remove_wp(String trackId, String id){
         myDatabase.del_WayPoint(id);
+        gbl.getTrackOsmCollection().remove_Marker_From_Track(trackId, Integer.parseInt(id));
     }
 
     // Consente di raggiungere la attività con i dettagli del wp selezionato
@@ -282,7 +284,9 @@ public class WayPointsListActivity extends AppCompatActivity {
                                 if (myLstAdaper.getItemsCheckedArray().size() > 0) {
                                     for (int j : myLstAdaper.getItemsCheckedArray()) {
 
-                                        remove_wp(wp_array.get(j).mId);
+                                        gbl.myLog("DELETE --> trackId["+trackId+"] MarkerId["+wp_array.get(j).mId+"]");
+
+                                        remove_wp(trackId, wp_array.get(j).mId);
                                     }
 
                                     fillListView();

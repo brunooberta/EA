@@ -43,10 +43,10 @@ public class Track_OSM {
 
     public Polyline polyline;
     public ArrayList<Marker> lst_marker;
-    public ArrayList<Marker> lst_waypoints_marker;
+    public ArrayList<EA_Marker> lst_waypoints_marker;
     public ArrayList<Marker> lst_direction_marker;
     public List<GeoPoint> lst_geoPoint;
-    public Marker startMarker, endMarker;
+    public EA_Marker startMarker, endMarker;
     public BoundingBox boundingBox;
 
     private MapView mMap;
@@ -174,7 +174,7 @@ public class Track_OSM {
     }
 
     private Polyline getPolyline() {
-        int LAT = 2, LON = 3, ALT = 4;
+        int LOCID=1,LAT = 2, LON = 3, ALT = 4;
         Cursor positions_cur;
         String whereFields = "trackId=?";
         String[] whereValues = new String[]{mTrackId};
@@ -204,7 +204,7 @@ public class Track_OSM {
 
                 if (i==0){
                     mStartLoc = gp;
-                    startMarker = new Marker(mMap);
+                    startMarker = new EA_Marker(mMap,positions_cur.getInt(LOCID));
                     startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                     startMarker.setPosition(gp);
                     startMarker.setTitle(mCtx.getString(R.string.start_marker_title) + " - " + mName);
@@ -250,7 +250,7 @@ public class Track_OSM {
                 positions_cur.moveToNext();
             }
 
-            endMarker= new org.osmdroid.views.overlay.Marker(mMap);
+            endMarker = new EA_Marker(mMap,-1);
             endMarker.setPosition(lastGeoPoint);
             endMarker.setTitle(mCtx.getString(R.string.end_marker_title) + " - " + mName);
             endMarker.setSnippet(String.format("d:%.0fm - Alt:%.0fm", d,lastGeoPoint.getAltitude()));
@@ -272,9 +272,9 @@ public class Track_OSM {
         }
     }
 
-    private ArrayList<Marker> getWayPointList() {
+    private ArrayList<EA_Marker> getWayPointList() {
         try {
-            int WP_LAT = 2, WP_LON = 3, WP_ALT = 4, WP_NAME = 5, SYM = 8;
+            int ID=0, WP_LAT = 2, WP_LON = 3, WP_ALT = 4, WP_NAME = 5, SYM = 8;
             double wp_d;
 
             Cursor wp_cursor = mDatabase.sel_WayPoints(mTrackId);
@@ -283,7 +283,7 @@ public class Track_OSM {
 
             for (int i = 0; i < wp_cursor.getCount(); i++) {
 
-                Marker m = new Marker(mMap);
+                EA_Marker m = new EA_Marker(mMap,wp_cursor.getInt(ID));
 
                 GeoPoint gp = new GeoPoint(0.0,0.0,0.0);
 
@@ -335,6 +335,14 @@ public class Track_OSM {
 
     public void setTrackName(String mName) {
         this.mName = mName;
+    }
+
+    public void removeMarker(int id){
+        for(int i=0;i<lst_waypoints_marker.size();i++){
+            EA_Marker m = lst_waypoints_marker.get(i);
+            if(m.getId()==id)
+                lst_waypoints_marker.remove(i);
+        }
     }
 
     // Costruisce lo snippet del MarkerOpotions
