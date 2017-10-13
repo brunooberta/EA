@@ -161,6 +161,7 @@ public class WayPointsListActivity extends AppCompatActivity {
             Intent intent = new Intent(this, WayPointDetailActivity.class);
             intent.putExtra("wpId",wp_array.get(myLstAdaper.getItemsCheckedArray().get(0)).mId);
             intent.putExtra("trackId",trackId);
+            intent.putExtra("trackName",trackName);
             startActivity(intent);
             //finish();
 

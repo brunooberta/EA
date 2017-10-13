@@ -89,6 +89,8 @@ public class WayPointDetailActivity extends AppCompatActivity {
                 set_ItemValues();
             }
 
+            gbl.myLog("trackName["+trackName+"]");
+
             TextView tv_track_name = (TextView) findViewById(R.id.tv_wp_track_name);
             tv_track_name.setText(trackName);
 
