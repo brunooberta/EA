@@ -59,6 +59,8 @@ public class SplashActivity extends FragmentActivity {
 
             try {
 
+                EA_Logger.setup();
+
                 gbl.setPreferences(this);
 
                 callbackManager = CallbackManager.Factory.create();

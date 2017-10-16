@@ -258,6 +258,7 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onDestroy() {
+
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -271,10 +272,12 @@ public class MainActivity extends AppCompatActivity{
 
             LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mMyBroadcastReceiver);
 
+            EA_Logger.close();
+
             super.onDestroy();
 
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in onDestroy [" + e.toString() + "]");
+            gbl.myLog("ERRORE in onDestroy [" + e.toString() + "]");
         }
     }
 
@@ -286,6 +289,8 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         try {
             setContentView(R.layout.activity_main);
+
+            gbl.myLog("PROVA");
 
             if(!isJustCreated){
                 gbl.setIsSelectMode_ON(gbl.pref_def_select_track_mode);
@@ -1549,8 +1554,6 @@ public class MainActivity extends AppCompatActivity{
             MIN_DIM = 20;   // dimensione del buffer cirdcolare oltre la quale inizio a calcolare la media
         boolean retValue = true;
 
-        //gbl.myLog("populate_array_of_h --> index_h["+index_h+"] h["+h+"] lst_h.size()["+lst_h.size()+"]");
-
         if(h>0) {
 
             if (index_h >= DIM - 1)
@@ -1568,6 +1571,8 @@ public class MainActivity extends AppCompatActivity{
        }
         else
             retValue = false;
+
+        //gbl.myLog("populate_array_of_h --> index_h["+index_h+"] h["+h+"] lst_h.size()["+lst_h.size()+"] retValue=["+retValue+"]");
 
         return retValue;
 
@@ -2159,7 +2164,9 @@ public class MainActivity extends AppCompatActivity{
                                 tv.setText(R.string.fa_play_circle_o);
                                 FontManager.markAsIconContainer(tv, iconFont,100,Color.RED);
                                 resetLiveData();
-                                showNotification();
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                    showNotification();
+                                }
                             }
                         }
                         catch (Exception e){
@@ -2263,7 +2270,9 @@ public class MainActivity extends AppCompatActivity{
                             map_osm.getOverlays().remove(follow_marker);
                             map_osm.getOverlays().remove(curr_position_marker);
                             //10.10.2017 END ID=4: rimozione dei marker
-                            showNotification();
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                showNotification();
+                            }
                             setTrackToFollow_OSM(gbl.getSelectTrack_osm().getTrackId(), "0");
                             img_manageFollow.setImageResource(R.mipmap.follow_green);
                             img_outOfPath.setVisibility(ImageView.INVISIBLE);
@@ -2584,7 +2593,9 @@ public class MainActivity extends AppCompatActivity{
                             crono_wp_follow_dlg.setBase(SystemClock.elapsedRealtime());
                             start_wp_following_time = crono_wp_follow_dlg.getBase();
                             crono_wp_follow_dlg.start();
-                            showNotification();
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                showNotification();
+                            }
                         }
                         else {
                             if (curr_wp_index >= 0 && !is_wp_selected) {
@@ -2597,7 +2608,9 @@ public class MainActivity extends AppCompatActivity{
                                 crono_wp_follow_dlg.setBase(SystemClock.elapsedRealtime());
                                 start_wp_following_time = crono_wp_follow_dlg.getBase();
                                 crono_wp_follow_dlg.start();
-                                showNotification();
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                    showNotification();
+                                }
                             } else {
                                 if (is_wp_selected) {
                                     showDlg_STOP_WP_FOLLOW();

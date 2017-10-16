@@ -19,7 +19,6 @@ import java.util.ArrayList;
 
 public class Global {
 
-
     static public int DLG_BTN_SIZE = 90;
     static public double H_PRECEDENTE = 0;
     static private boolean isSelectTrackLocked = false;
@@ -47,7 +46,10 @@ public class Global {
     static public int pref_default_zoom=-1;
     static public String pref_map_offline="";
 
+    static private boolean LOG_TO_FILE = true;
+
     static private Track_OSM_Collection trackOsmCollection = null;
+
 
     public static Track_OSM_Collection getTrackOsmCollection() {
         return trackOsmCollection;
@@ -108,12 +110,19 @@ public class Global {
         return dp;
     }
 
-
     private  String LOG_TAG = "MY_CHECK";
 
     public void myLog(String text){
 
+        if(LOG_TO_FILE) EA_Logger.log(text);
         Log.w(LOG_TAG,text);
+
+    }
+
+    public void myLog1(String text){
+
+        Log.w(LOG_TAG,text);
+
     }
 
     public int getAverage(ArrayList<Double> lst){
