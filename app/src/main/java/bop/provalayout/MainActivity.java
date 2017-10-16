@@ -107,8 +107,9 @@ public class MainActivity extends AppCompatActivity{
 
     MapView map_osm;
     private static double h = 0;   //  altitudine
-    private LatLng POS_ATTUALE = new LatLng(0.0, 0.0), POS_FOLLOWING = new LatLng(0.0, 0.0);
-    private GeoPoint GP_POS_ATTUALE = new GeoPoint(0.0,0.0), GP_POS_FOLLOWING = new GeoPoint(0.0,0.0);
+    private static LatLng POS_ATTUALE = new LatLng(0.0, 0.0);
+    private LatLng POS_FOLLOWING = new LatLng(0.0, 0.0);
+    private static GeoPoint GP_POS_ATTUALE = new GeoPoint(0.0,0.0), GP_POS_FOLLOWING = new GeoPoint(0.0,0.0);
     private static GeoPoint GP_POS_PRECEDENTE= new GeoPoint(0.0,0.0);
     private static LatLng POS_PRECEDENTE= new LatLng(0.0,0.0);
     private static GeoPoint last_gp_saved_on_db = new GeoPoint(0.0,0.0);
@@ -289,8 +290,6 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         try {
             setContentView(R.layout.activity_main);
-
-            gbl.myLog("PROVA");
 
             if(!isJustCreated){
                 gbl.setIsSelectMode_ON(gbl.pref_def_select_track_mode);
@@ -620,6 +619,7 @@ public class MainActivity extends AppCompatActivity{
 
             if (wp_ToShow == null) {
                 if(isRecording)
+
                     zoomOnPoint(GP_POS_ATTUALE);
                 else if (gbl.getSelectTrack_osm() != null) {
                     zoomTrack(gbl.getSelectTrack_osm());
@@ -1244,6 +1244,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void zoomOnPoint(GeoPoint gp){
+
         mapController.setZoom(gbl.pref_default_zoom);
         mapController.setCenter(gp);
     }
@@ -1269,6 +1270,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     }
+
 
     private void drawTrackOnMap_Live(GeoPoint gp) {
         try {
