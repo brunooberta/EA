@@ -23,7 +23,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -61,7 +60,6 @@ public class DetailsActivity extends AppCompatActivity {
     private String trackId;
     private GPSDatabase myDatabase;
     private int animationLength = 2500;
-    private Animation iconAnimation;
     private String[] arr_trackId = new String[]{};
     private String selected_date="";
     private Global gbl = new Global();
@@ -84,7 +82,6 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        iconAnimation = gbl.getToolbarAnimation(getApplicationContext());
         myDatabase = new GPSDatabase(this);
         myDatabase.open();
 
@@ -190,8 +187,7 @@ public class DetailsActivity extends AppCompatActivity {
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
 
-        public PlaceholderFragment() {
-        }
+        public PlaceholderFragment() {}
 
         /**
          * Returns a new instance of this fragment for the given section
@@ -787,7 +783,8 @@ public class DetailsActivity extends AppCompatActivity {
             super(context, layoutResource);
             tv_content = (TextView) findViewById(R.id.tv_content);
             tv_content.setTextSize(15);
-            tv_content.setTextColor(Color.BLUE);
+            tv_content.setTextColor(getColor(R.color.colorTextNormal));
+            tv_content.setBackgroundColor(getColor(R.color.white));
             mtypeOfChart = typeOfChart;
         }
 

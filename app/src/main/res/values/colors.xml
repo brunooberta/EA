@@ -3,21 +3,16 @@
     <!--
     <color name="colorPrimary">#3F51B5</color>
     -->
-    <color name="colorPrimary">#9fa8da</color>
-    <color name="colorPrimaryDark">#6f79a8</color>
-    <color name="colorAccent">#4169e1</color>
+    <color name="colorPrimary">#4caf50</color>
+    <color name="colorPrimaryDark">#087f23</color>
+    <color name="colorTextSelected">#80e27e</color>
+    <color name="colorTextNormal">@color/black</color>
+    <color name="colorTransparent">@android:color/transparent</color>
 
-
-    <color name="col_background">#9fa8da</color>
-    <color name="col_toolbar">#9fa8da</color>
+    <color name="col_background"> #338a3e </color>
+    <color name="col_toolbar">@color/colorPrimaryDark</color>
     <color name="white">#ffffff</color>
     <color name="black">@android:color/black</color>
-
-    <color name="trans">#00000000 </color>
-    <color name="tv_border">#17113E </color>
-
-    <color name="share_style_back_color">#d1d9ff </color>
-    <color name="share_style_border_color">#151B8D </color>
 
     <color name="calendar_background">@color/col_background</color>
     <color name="calendar_currentday_bg">@android:color/holo_red_light</color>
@@ -28,7 +23,6 @@
 
 
     <color name="mi_icon_unselected">@android:color/black</color>
-    <color name="mi_layout_selected">#808080</color>
-    <color name="mi_icon_selected">#1E90FF</color>
+    <color name="mi_icon_selected">@color/colorPrimaryDark</color>
 
 </resources>

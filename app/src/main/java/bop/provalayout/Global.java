@@ -6,8 +6,6 @@ import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 
 import org.osmdroid.tileprovider.MapTileProviderArray;
 
@@ -259,9 +257,6 @@ public class Global {
         Global.isPaused = isPaused;
     }
 
-    public static Animation getToolbarAnimation(Context context){
-        return AnimationUtils.loadAnimation(context, R.anim.clockwise);
-    }
 
     public int getPreferenceValue_int(int key, Context context) {
         try {

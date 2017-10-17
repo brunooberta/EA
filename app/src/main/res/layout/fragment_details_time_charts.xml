@@ -97,7 +97,9 @@
             <SeekBar
                 android:id="@+id/seekBar_dt"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:theme="@style/SeekBarColor"
+                android:thumb="@drawable/sb_thumb"/>
 
             <TextView
                 android:id="@+id/tv_titolo_ht"

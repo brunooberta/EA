@@ -76,7 +76,7 @@
                 android:background="@drawable/share_style"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="TextView"
-                android:textColor="@color/colorAccent"
+                android:textColor="@color/colorTextNormal"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -105,8 +105,9 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text="Length:"
-                    android:textColor="@color/colorAccent"
-                    android:textSize="22sp" />
+                    android:textColor="@color/colorTextNormal"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_L"
@@ -116,7 +117,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text=""
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/colorTextNormal"
                     android:textSize="22sp" />
 
             </LinearLayout>
@@ -136,8 +137,9 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text="Duration:"
-                    android:textColor="@color/colorAccent"
-                    android:textSize="22sp" />
+                    android:textColor="@color/colorTextNormal"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_T"
@@ -147,7 +149,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text=""
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/colorTextNormal"
                     android:textSize="22sp" />
 
             </LinearLayout>
@@ -167,8 +169,9 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text="D Positive:"
-                    android:textColor="@color/colorAccent"
-                    android:textSize="22sp" />
+                    android:textColor="@color/colorTextNormal"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_Dp"
@@ -178,7 +181,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text=""
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/colorTextNormal"
                     android:textSize="22sp" />
 
             </LinearLayout>
@@ -198,8 +201,9 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text="D Negative:"
-                    android:textColor="@color/colorAccent"
-                    android:textSize="22sp" />
+                    android:textColor="@color/colorTextNormal"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_Dm"
@@ -209,7 +213,7 @@
                     android:layout_weight="1"
                     android:padding="2dp"
                     android:text=""
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/colorTextNormal"
                     android:textSize="22sp" />
 
             </LinearLayout>

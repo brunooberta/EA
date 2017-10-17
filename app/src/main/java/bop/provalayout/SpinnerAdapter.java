@@ -59,7 +59,7 @@ public class SpinnerAdapter extends ArrayAdapter<ListItem> {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if(is_wp_details) {
-                    ll.setBackgroundColor(ctx.getColor(R.color.share_style_back_color));
+                    ll.setBackgroundColor(ctx.getColor(R.color.white));
                     holder.description.setTextColor(ctx.getColor(R.color.black));
                 }
             }

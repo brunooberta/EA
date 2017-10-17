@@ -107,7 +107,6 @@ public class FontManager {
                                     act.onOptionsItemSelected(mi);
                                     final int current_text_color = tv.getCurrentTextColor();
                                     tv.setTextColor(ContextCompat.getColor(ctx,R.color.mi_icon_selected));
-                                   // rl.setBackgroundColor(ContextCompat.getColor(ctx,R.color.mi_layout_selected));
 
                                     new CountDownTimer(500, 100) {
                                         public void onTick(long millisUntilFinished) {

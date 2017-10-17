@@ -8,19 +8,25 @@
     android:fitsSystemWindows="true"
     tools:context="bop.provalayout.DetailsActivity">
 
+    <android.support.v4.view.ViewPager
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:drawable/screen_background_light_transparent"
+        android:background="@color/col_background"
+        android:foregroundGravity="top"
         android:paddingTop="@dimen/appbar_padding_top"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/tb_details"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="0dp"
+            android:layout_height="wrap_content"
             android:background="@color/col_background"
             android:contentInsetEnd="0dp"
             android:contentInsetLeft="0dp"
@@ -42,16 +48,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/col_toolbar"
-            app:tabSelectedTextColor="@color/colorAccent"
+            app:tabSelectedTextColor="@color/colorTextSelected"
             app:tabTextColor="@android:color/black" />
 
     </android.support.design.widget.AppBarLayout>
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 
 </android.support.design.widget.CoordinatorLayout>
