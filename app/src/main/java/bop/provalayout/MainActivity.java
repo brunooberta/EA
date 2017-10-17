@@ -98,9 +98,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity{
@@ -339,7 +337,8 @@ public class MainActivity extends AppCompatActivity{
             myDatabase = new GPSDatabase(this);
             myDatabase.open();
 
-            // Commento nella VS free --> isRecording = get_StartTracking(); // Verifico se è in corso una registrazione
+            isRecording = get_StartTracking(); // Verifico se è in corso una registrazione
+
             if(isRecording)  {
                 isFirstPointToTrack = true;
                 gbl.setRecordingTime(getStartDateOfRec()); // recupero il primo istante campionato
@@ -1262,6 +1261,18 @@ public class MainActivity extends AppCompatActivity{
                     mapController.setZoom(gbl.pref_default_zoom);
                 }
             }
+            else{// Se non ci sono tracce salvate e non ho ancora acquisito nessuna posizione --> imposto una posizione di default
+                double lat = 45.05, lon  = 7.666667;
+                GeoPoint def_gp = new GeoPoint(lat,lon);
+                mapController.setZoom(gbl.pref_default_zoom);
+                mapController.setCenter(def_gp);}
+        }
+        else{
+            // Se non ci sono tracce salvate e non ho ancora acquisito nessuna posizione --> imposto una posizione di default
+            double lat = 45.05, lon  = 7.666667;
+            GeoPoint def_gp = new GeoPoint(lat,lon);
+            mapController.setZoom(gbl.pref_default_zoom);
+            mapController.setCenter(def_gp);
         }
     }
     catch (Exception e) {
@@ -2669,7 +2680,9 @@ public class MainActivity extends AppCompatActivity{
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     try {
                                         isFollowing = false;
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                             showNotification();
+                                        }
                                         setTrackToFollow_OSM(gbl.getSelectTrack_osm().getTrackId(), "0");
                                         img_manageFollow.setImageResource(R.mipmap.follow_green);
                                         img_outOfPath.setVisibility(ImageView.INVISIBLE);

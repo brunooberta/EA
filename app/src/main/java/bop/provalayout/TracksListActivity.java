@@ -9,13 +9,17 @@ import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -161,11 +165,12 @@ public class TracksListActivity extends AppCompatActivity {
                         Dlg_Confirm("NO_ITEM_SELECTED");
                         return true;
                     }
+                    /*
                     if (cnt > 1) {
                         Dlg_Confirm("SELECT_ONLY_ONE_ITEM");
                         return true;
                     }
-
+                    */
                     trackId_to_modify = myLstAdaper.getLastTrackIdSelected();
 
                     trackName_to_modify = track_ArrayList.get(myLstAdaper.getPositionsSelected().get(0)).getTrackName();
@@ -507,13 +512,42 @@ public class TracksListActivity extends AppCompatActivity {
                     });
                     break;
                 case "MODIFY_TRACK_NAME":
-                    // Costruisco Edittext x il nome della traccia
-                    final My_EditText et_trackName = new My_EditText(TracksListActivity.this,trackName_to_modify, "ALPHANUMERIC", 20, dlg);
                     LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT);
+                    final EA_EditText et_trackName = new EA_EditText(this);
+                    TextInputLayout til_trackName  = new TextInputLayout(this);
+                    MyTextWatcher tw_fe_editText = new MyTextWatcher(et_trackName,til_trackName, getApplicationContext());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                        et_trackName.setId(View.generateViewId());
+                        til_trackName.setId(View.generateViewId());
+                    }
                     et_trackName.setLayoutParams(lp);
+                    til_trackName.setLayoutParams(lp);
+                    dlg.setView(et_trackName);
+                    dlg.setView(til_trackName);
+
+                    et_trackName.addTextChangedListener(tw_fe_editText);
+                    et_trackName.setText(trackName_to_modify);
+
+                    InputFilter filter = new InputFilter() {
+                        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                            for (int i = start; i < end; i++) {
+                                if(!Character.isSpaceChar(source.charAt(i))) {
+                                    if (!Character.isLetterOrDigit(source.charAt(i))) {
+                                        return "";
+                                    }
+                                }
+                            }
+                            return null;
+                        }
+                    };
+
+                    et_trackName.setFilters(new InputFilter[]{filter});
+                    et_trackName.setHint("Track name");
+
+                    til_trackName.addView(et_trackName);
 
                     dlg.setTitle("Modify Track Name");
-                    dlg.setView(et_trackName); // Aggiungo editetext al Dialogo
+
                     dlg.setMessage("Modify Track Name and press Save Button:");
                     dlg.setButton(DialogInterface.BUTTON_NEGATIVE, "CANCEL",new DialogInterface.OnClickListener(){@Override public void onClick(DialogInterface dialog, int id){ } }                    );
                     dlg.setButton(DialogInterface.BUTTON_POSITIVE,
