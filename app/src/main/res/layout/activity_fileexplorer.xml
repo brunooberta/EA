@@ -51,16 +51,6 @@
 
 			</android.support.design.widget.TextInputLayout>
 
-			<Button
-				android:id="@+id/skipButton"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentRight="false"
-				android:background="@drawable/btn_shape"
-				android:onClick="getfile"
-				android:text="BROWSE"
-				android:textSize="18dp"></Button>
-
 		</LinearLayout>
 
 		<LinearLayout
