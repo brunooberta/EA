@@ -31,6 +31,8 @@ import android.os.Handler;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.TextInputLayout;
@@ -43,7 +45,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -59,6 +60,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
@@ -101,7 +106,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     MapView map_osm;
     private static double h = 0;   //  altitudine
@@ -193,6 +198,10 @@ public class MainActivity extends AppCompatActivity{
 
     private static int recMarkerId = 0;
 
+    private GoogleApiClient mApiClient;
+    private PendingIntent pendingIntent;
+    private static boolean isMoving = false;
+
     //Riceve i messaggi dal Servizio di localizzazione LocationService
     public class MyBroadcastReceiver extends BroadcastReceiver {
 
@@ -204,10 +213,10 @@ public class MainActivity extends AppCompatActivity{
                 Location mLocation = intent.getParcelableExtra("LOCATION");
                 myOnLocationChanged(mLocation);
 
-                //Log.w("MY_CHECK", "MyBroadcastReceiver.onReceive");
+                //gbl.myLog( "MyBroadcastReceiver.onReceive");
 
             } catch (Exception e) {
-                Log.w("MY_CHECK", "ERRORE in onReceive [" + e.toString() + "]");
+                gbl.myLog( "ERRORE in onReceive [" + e.toString() + "]");
             }
         }
 
@@ -273,6 +282,9 @@ public class MainActivity extends AppCompatActivity{
 
             EA_Logger.close();
 
+            gbl.myLog(" onDestroy ");
+            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mApiClient,pendingIntent);
+
             super.onDestroy();
 
         } catch (Exception e) {
@@ -288,6 +300,17 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         try {
             setContentView(R.layout.activity_main);
+
+            Intent intent = new Intent( this, ActivityRecognizedService.class );
+            pendingIntent = PendingIntent.getService( this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT );
+
+            mApiClient = new GoogleApiClient.Builder(this)
+                    .addApi(ActivityRecognition.API)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+
+            mApiClient.connect();
 
             if(!isJustCreated){
                 gbl.setIsSelectMode_ON(gbl.pref_def_select_track_mode);
@@ -589,7 +612,7 @@ public class MainActivity extends AppCompatActivity{
                     try {
                         mapController.zoomIn();
                     } catch (Exception e) {
-                        Log.w("MY_CHECK", "ERRORE in img_zoomIn.setOnClickListener [" + e.toString() + "]");
+                        gbl.myLog( "ERRORE in img_zoomIn.setOnClickListener [" + e.toString() + "]");
                     }
                 }
             });
@@ -601,7 +624,7 @@ public class MainActivity extends AppCompatActivity{
                     try {
                         mapController.zoomOut();
                     } catch (Exception e) {
-                        Log.w("MY_CHECK", "ERRORE in img_zoomIn.setOnClickListener [" + e.toString() + "]");
+                        gbl.myLog( "ERRORE in img_zoomIn.setOnClickListener [" + e.toString() + "]");
                     }
                 }
             });
@@ -657,7 +680,7 @@ public class MainActivity extends AppCompatActivity{
                     return false;
                 }
                 catch (Exception e) {
-                    Log.w("MY_CHECK", "ERRORE in onTouch [" + e.toString() + "]");
+                    gbl.myLog( "ERRORE in onTouch [" + e.toString() + "]");
                     return false;
                 }
                 }
@@ -683,7 +706,7 @@ public class MainActivity extends AppCompatActivity{
             }
         }
         catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in onCreate [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in onCreate [" + e.toString() + "]");
         }
     }
 
@@ -771,11 +794,20 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-
-
     @Override
     public void onBackPressed() {
     }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+       ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates( mApiClient, 0, pendingIntent );
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {}
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {}
 
     private long getStartDateOfRec(){
 
@@ -847,7 +879,7 @@ public class MainActivity extends AppCompatActivity{
             }
 
         }catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in show_wp [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in show_wp [" + e.toString() + "]");
         }
     }
 
@@ -899,7 +931,7 @@ public class MainActivity extends AppCompatActivity{
             showDlg_ADD_WP();
         }
         catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in addMarkerOnMap  [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in addMarkerOnMap  [" + e.toString() + "]");
         }
 
     }
@@ -935,7 +967,7 @@ public class MainActivity extends AppCompatActivity{
 
                 //;
             }
-        }catch(Exception e){Log.w("MY_CHECK", "ERRORE in setVisbilityLayoutFunction  [" + e.toString() + "]");}
+        }catch(Exception e){gbl.myLog( "ERRORE in setVisbilityLayoutFunction  [" + e.toString() + "]");}
 
     }
 
@@ -1031,7 +1063,7 @@ public class MainActivity extends AppCompatActivity{
             return false;
 
         }catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in myMapOnTouchListener [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in myMapOnTouchListener [" + e.toString() + "]");
             return super.dispatchTouchEvent(ev);
         }
     }
@@ -1075,7 +1107,7 @@ public class MainActivity extends AppCompatActivity{
             map_osm.getOverlays().add(curr_position_marker);
 
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in showCurrentPosition [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in showCurrentPosition [" + e.toString() + "]");
         }
     }
 
@@ -1083,7 +1115,7 @@ public class MainActivity extends AppCompatActivity{
         try {
             showDlg_SELECT_TRACK();
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in goToTrackList [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in goToTrackList [" + e.toString() + "]");
         }
     }
 
@@ -1094,7 +1126,7 @@ public class MainActivity extends AppCompatActivity{
             myDatabase.upd_TrackSaved_Rows(new String[]{"polylineId", "toFollow"}, new String[]{"", "0"}, "", new String[]{});
 
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in resetFollowingTrack [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in resetFollowingTrack [" + e.toString() + "]");
         }
     }
 
@@ -1104,7 +1136,7 @@ public class MainActivity extends AppCompatActivity{
             myDatabase.set_trackToFollow_OSM(trackId, valore);
 
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in setTrackToFollow_OSM [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in setTrackToFollow_OSM [" + e.toString() + "]");
         }
     }
 
@@ -1126,7 +1158,7 @@ public class MainActivity extends AppCompatActivity{
 
 
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in set_StartTracking [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in set_StartTracking [" + e.toString() + "]");
             return retValue;
         }
     }
@@ -1151,7 +1183,7 @@ public class MainActivity extends AppCompatActivity{
             }
 
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in manageTrackRecording [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in manageTrackRecording [" + e.toString() + "]");
         }
 
     }
@@ -1184,7 +1216,7 @@ public class MainActivity extends AppCompatActivity{
             }
 
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in drawTrackOnMap_OSM [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in drawTrackOnMap_OSM [" + e.toString() + "]");
 
         }
     }
@@ -1219,7 +1251,7 @@ public class MainActivity extends AppCompatActivity{
             return track_osm;
 
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in drawTrackOnMap_OSM [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in drawTrackOnMap_OSM [" + e.toString() + "]");
             return track_osm;
 
         }
@@ -1237,7 +1269,7 @@ public class MainActivity extends AppCompatActivity{
         try {
             zoomBoundingBox(t);
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in zoomTrack [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in zoomTrack [" + e.toString() + "]");
 
         }
     }
@@ -1276,7 +1308,7 @@ public class MainActivity extends AppCompatActivity{
         }
     }
     catch (Exception e) {
-        Log.w("MY_CHECK", "ERRORE in zoomTrack [" + e.toString() + "]");
+        gbl.myLog( "ERRORE in zoomTrack [" + e.toString() + "]");
 
     }
 
@@ -1296,7 +1328,7 @@ public class MainActivity extends AppCompatActivity{
 
             }
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in drawTrackOnMap_Live [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in drawTrackOnMap_Live [" + e.toString() + "]");
 
         }
     }
@@ -1317,7 +1349,7 @@ public class MainActivity extends AppCompatActivity{
 
         }
         catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in SaveTrackOnDB [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in SaveTrackOnDB [" + e.toString() + "]");
             return 0;
         }
 
@@ -1453,7 +1485,7 @@ public class MainActivity extends AppCompatActivity{
 
             }
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in setCurrentPositionOnMap_OSM [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in setCurrentPositionOnMap_OSM [" + e.toString() + "]");
         }
     }
 
@@ -1517,7 +1549,7 @@ public class MainActivity extends AppCompatActivity{
             cur.close();
 
         } catch (Exception e) {
-            Log.w("MY_CHECK","ERRORE in get_distance_from_track ["+e.toString()+"]");
+            gbl.myLog("ERRORE in get_distance_from_track ["+e.toString()+"]");
 
         }
     }
@@ -1531,7 +1563,7 @@ public class MainActivity extends AppCompatActivity{
             }
             return d;
         } catch (Exception e) {
-            Log.w("MY_CHECK","ERRORE in get_distance_from_track ["+e.toString()+"]");
+            gbl.myLog("ERRORE in get_distance_from_track ["+e.toString()+"]");
             return "";
         }
     }
@@ -1627,7 +1659,7 @@ public class MainActivity extends AppCompatActivity{
 
             altitude = "" + (int)h;
 
-            //gbl.myLog("delta_d_absolute["+delta_d_absolute+"] altitude["+altitude+"] location.getAltitude()["+location.getAltitude()+"]");
+            motionDetect();
 
             //if(!altitude.contains("-") && altitude == "0")
             if(h > 0 ) {
@@ -1710,11 +1742,21 @@ public class MainActivity extends AppCompatActivity{
                 */
                 //gbl.myLog("myOnLocationChanged --> h["+h+"] delta_d_saved["+delta_d_saved+"]");
                 if (h > 0) {
-                    if ((isTimeToSavePointToDB(gbl.pref_gps_minum_time * 60 * 1000) && delta_d_saved > gbl.pref_gps_minum_distance) || isFirstPointToTrack) {
-
+                    // ------------------------------------------------------------
+                    // Inserisco i dati nel DB se:
+                    // E' il primo punto della traccia
+                    // OPPURE
+                    // E' passato un certo dT da quando ho salvato l'ultima volta AND mi sono mosso di una distanza superiore alla soglia
+                    // ------------------------------------------------------------
+                    /*
+                    if (isFirstPointToTrack || 
+                            (isTimeToSavePointToDB(gbl.pref_gps_minum_time * 60 * 1000) && delta_d_saved > gbl.pref_gps_minum_distance) ) {
+                            */
+                    if (isFirstPointToTrack ||
+                            (isTimeToSavePointToDB(gbl.pref_gps_minum_time * 60 * 1000) && isMoving)) {
+                        isMoving = false;
 
                         if (isFirstPointToTrack) {
-
                             loadGeopoints(); // qua dentro setto anche  distance_live_rec = 0 prima di iniziare a misurare
                             drawTrackOnMap_Live(GP_POS_ATTUALE); // Disegno la polyline sulla mappa con continuità
                             isFirstPointToTrack = false;
@@ -1811,13 +1853,42 @@ public class MainActivity extends AppCompatActivity{
             if(h>0) gbl.H_PRECEDENTE = h;
 
         } catch (Exception e) {
-            Log.w("MY_CHECK","ERRORE in myOnLocationChanged ["+e.toString()+"]");
+            gbl.myLog("ERRORE in myOnLocationChanged ["+e.toString()+"]");
         }
 
     }
 
+    /*
+     * Verifica il valore della ATTIVITA se individua il movimento --> isMoving = true e lo mantiene
+     *  viene richiamata in myOnLocationChanged in modo da verificare in ogni momento se c'è stato movimento
+     *  Nel momento in cui viene salvato il punto nel DB la variabile isMoving viene settata a false
+     */
+    private void motionDetect(){
+        try {
+            if (!isMoving) {
+                int activityType = gbl.getActivity().getType();
+                switch (activityType) {
+                    case DetectedActivity.IN_VEHICLE:
+                    case DetectedActivity.ON_BICYCLE:
+                    case DetectedActivity.ON_FOOT:
+                    case DetectedActivity.RUNNING:
+                    case DetectedActivity.TILTING:
+                    case DetectedActivity.WALKING:
+                        isMoving = true;
+                        break;
+                    default:
+                        isMoving = false;
+                        break;
+                }
+            }
+            //gbl.myLog1("isMoving ["+isMoving+"]");
+        }catch (Exception e) {
+            gbl.myLog("ERRORE in motionDetect ["+e.toString()+"]");
+        }
+    }
+
     // Produce il suono per l'uscita dalla traccia
-    public void ringtone(){
+    private void ringtone(){
         try {
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
@@ -1828,7 +1899,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     // Aggiorno il DB con la posizione attuale
-    public void ins_location_DB() {
+    private void ins_location_DB() {
         // NB: inserisco l'altezza media altezza media
         //gbl.myLog("myOnLocationChanged --> ins_location_DB --> h["+h+"]");
         myDatabase.ins_Location_Rows(("" + GP_POS_ATTUALE.getLatitude()), ("" + GP_POS_ATTUALE.getLongitude()), "" + h);
@@ -1901,12 +1972,12 @@ public class MainActivity extends AppCompatActivity{
                 }
             }
             else
-                Log.w("MY_CHECK","getMinumDistancePoint gbl.getSelectTrack_osm() [NULL]");
+                gbl.myLog("getMinumDistancePoint gbl.getSelectTrack_osm() [NULL]");
 
             return min_d;
 
         }catch(Exception e){
-            Log.w("MY_CHECK","ERRORE in getMinumDistancePoint ["+e.toString()+"]");
+            gbl.myLog("ERRORE in getMinumDistancePoint ["+e.toString()+"]");
             return -1;
         }
 
@@ -2110,7 +2181,7 @@ public class MainActivity extends AppCompatActivity{
 
             dlg_rec.show();
         } catch (Exception e) {
-            Log.w("MY_CHECK","ERRORE in showDlg_REC ["+e.toString()+"]");
+            gbl.myLog("ERRORE in showDlg_REC ["+e.toString()+"]");
         }
     }
 
@@ -2183,7 +2254,7 @@ public class MainActivity extends AppCompatActivity{
                             }
                         }
                         catch (Exception e){
-                            Log.w("MY_CHECK","ERRORE in DialogInterface.OnClickListener --> OnClick["+ e.toString() +"]");
+                            gbl.myLog("ERRORE in DialogInterface.OnClickListener --> OnClick["+ e.toString() +"]");
                         }
                     }
                 });
@@ -2235,7 +2306,7 @@ public class MainActivity extends AppCompatActivity{
 
             dlg.show();
         } catch (Exception e) {
-            Log.w("MY_CHECK","ERRORE in showDlg_REC ["+e.toString()+"]");
+            gbl.myLog("ERRORE in showDlg_REC ["+e.toString()+"]");
         }
     }
 
@@ -2294,7 +2365,7 @@ public class MainActivity extends AppCompatActivity{
                             crono_track_follow_dlg.stop();
                             crono_track_follow_dlg.setBase(SystemClock.elapsedRealtime());
                         }
-                        catch(Exception e){Log.w("MY_CHECK","Errore in STOP FOLLOWING ["+e.toString()+"]");}
+                        catch(Exception e){gbl.myLog("Errore in STOP FOLLOWING ["+e.toString()+"]");}
 
                     }
                 });
@@ -2380,7 +2451,7 @@ public class MainActivity extends AppCompatActivity{
                             showDlg_STOP_TRACK_FOLLOW();
                         }
                     } catch (Exception e) {
-                        Log.w("MY_CHECK","ERRORE in img_start_stop_follow.setOnClickListener ["+e.toString()+"]");
+                        gbl.myLog("ERRORE in img_start_stop_follow.setOnClickListener ["+e.toString()+"]");
                     }
                 }
             });
@@ -2388,7 +2459,7 @@ public class MainActivity extends AppCompatActivity{
             dlg_foll.show();
 
         } catch (Exception e) {
-            Log.w("MY_CHECK","ERRORE in showDlg_TRACK_FOLLOW ["+e.toString()+"]");
+            gbl.myLog("ERRORE in showDlg_TRACK_FOLLOW ["+e.toString()+"]");
         }
     }
 
@@ -2415,7 +2486,7 @@ public class MainActivity extends AppCompatActivity{
                             crono_wp_follow_dlg.stop();
                             crono_wp_follow_dlg.setBase(SystemClock.elapsedRealtime());
                         }
-                        catch(Exception e){Log.w("MY_CHECK","Errore in STOP FOLLOWING ["+e.toString()+"]");}
+                        catch(Exception e){gbl.myLog("Errore in STOP FOLLOWING ["+e.toString()+"]");}
 
                     }
                 });
@@ -2633,14 +2704,14 @@ public class MainActivity extends AppCompatActivity{
                             }
                         }
                     } catch (Exception e) {
-                        Log.w("MY_CHECK","ERRORE in img_start_stop_follow.setOnClickListener ["+e.toString()+"]");
+                        gbl.myLog("ERRORE in img_start_stop_follow.setOnClickListener ["+e.toString()+"]");
                     }
                 }
             });
 
             dlg.show();
         } catch (Exception e) {
-            Log.w("MY_CHECK","ERRORE in showDlg_TRACK_FOLLOW ["+e.toString()+"]");
+            gbl.myLog("ERRORE in showDlg_TRACK_FOLLOW ["+e.toString()+"]");
         }
     }
 
@@ -2687,7 +2758,7 @@ public class MainActivity extends AppCompatActivity{
                                         img_manageFollow.setImageResource(R.mipmap.follow_green);
                                         img_outOfPath.setVisibility(ImageView.INVISIBLE);
                                      }
-                                    catch(Exception e){Log.w("MY_CHECK","Errore in STOP FOLLOWING ["+e.toString()+"]");}
+                                    catch(Exception e){gbl.myLog("Errore in STOP FOLLOWING ["+e.toString()+"]");}
 
                                 }
                             });
@@ -2737,11 +2808,11 @@ public class MainActivity extends AppCompatActivity{
 
             }
 
-            if(     operation != "ACTIVITY_IN_PROGRESS" &&
-                    operation != "FOLLOWING_IN_PROGRESS" &&
-                    operation != "NO_ITEM_TO_SHOW" &&
-                    operation != "NO_WP_SELECTED" &&
-                    operation != "NO_TRACK_SELECTED"){
+            if(     !operation.equals("ACTIVITY_IN_PROGRESS") &&
+                    !operation.equals("FOLLOWING_IN_PROGRESS") &&
+                    !operation.equals("NO_ITEM_TO_SHOW") &&
+                    !operation.equals("NO_WP_SELECTED") &&
+                    !operation.equals("NO_TRACK_SELECTED")){
                 dlg.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
@@ -2756,7 +2827,7 @@ public class MainActivity extends AppCompatActivity{
                 dlg.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
         }
         catch (Exception e){
-            Log.w("MY_CHECK","ERRORE in Dlg_Confirm["+ e.toString() +"]");
+            gbl.myLog("ERRORE in Dlg_Confirm["+ e.toString() +"]");
         }
 
     }
@@ -2784,7 +2855,7 @@ public class MainActivity extends AppCompatActivity{
             return allList;
         }
         catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in getAllList[" + e.toString() + "]");
+            gbl.myLog( "ERRORE in getAllList[" + e.toString() + "]");
             return null;
         }
 
@@ -2833,7 +2904,7 @@ public class MainActivity extends AppCompatActivity{
             map_osm.getOverlays().add(follow_marker);
 
         }catch (Exception e){
-            Log.w("MY_CHECK","ERRORE in addFollowMarker_OSM["+ e.toString() +"]");
+            gbl.myLog("ERRORE in addFollowMarker_OSM["+ e.toString() +"]");
 
         }
 
@@ -2867,7 +2938,7 @@ public class MainActivity extends AppCompatActivity{
             old_direction_pos = POS_ATTUALE;
 
         }catch (Exception e){
-            Log.w("MY_CHECK","ERRORE in addMarkerForMarchDirection["+ e.toString() +"]");
+            gbl.myLog("ERRORE in addMarkerForMarchDirection["+ e.toString() +"]");
         }
 
     }
@@ -2946,7 +3017,7 @@ public class MainActivity extends AppCompatActivity{
             startActivity(intent);
             //finish();
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in goToFB [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in goToFB [" + e.toString() + "]");
         }
     }
 
@@ -2956,7 +3027,7 @@ public class MainActivity extends AppCompatActivity{
             startActivity(intent);
             //finish();
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in goToSettings [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in goToSettings [" + e.toString() + "]");
         }
     }
 
@@ -2996,7 +3067,7 @@ public class MainActivity extends AppCompatActivity{
 
 
         } catch (Exception e) {
-            Log.w("MY_CHECK", "ERRORE in goWPList [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in goWPList [" + e.toString() + "]");
         }
     }
 
@@ -3077,7 +3148,7 @@ public class MainActivity extends AppCompatActivity{
 
             polyline_rec_live.setPoints(lst_geoPoint_rec_live);
         }catch(Exception e){
-            Log.w("MY_CHECK", "ERRORE in loadGeopoints [" + e.toString() + "]");
+            gbl.myLog( "ERRORE in loadGeopoints [" + e.toString() + "]");
         }
 
     }

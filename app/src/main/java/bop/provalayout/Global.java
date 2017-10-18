@@ -7,6 +7,8 @@ import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.google.android.gms.location.DetectedActivity;
+
 import org.osmdroid.tileprovider.MapTileProviderArray;
 
 import java.util.ArrayList;
@@ -46,8 +48,12 @@ public class Global {
 
     static private boolean LOG_TO_FILE = true;
 
-    static private Track_OSM_Collection trackOsmCollection = null;
+    static private DetectedActivity activity = new DetectedActivity(DetectedActivity.UNKNOWN,100);
 
+    public static DetectedActivity getActivity() {return activity;}
+    public static void setActivity(DetectedActivity activity) {Global.activity = activity;}
+
+    static private Track_OSM_Collection trackOsmCollection = null;
 
     public static Track_OSM_Collection getTrackOsmCollection() {
         return trackOsmCollection;
