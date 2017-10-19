@@ -28,6 +28,7 @@ import android.widget.TextView;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.ScaleBarOverlay;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -81,6 +82,15 @@ public class TracksListActivity extends AppCompatActivity {
             map_osm_tl.setTileProvider(gbl.getTileProviderArray());
             map_osm_tl.setTilesScaledToDpi(true);
             map_osm_tl.invalidate();
+            map_osm_tl.setEnabled(false);
+
+            ScaleBarOverlay mScaleBarOverlay = new ScaleBarOverlay(map_osm_tl);
+            mScaleBarOverlay.setCentred(true);
+            mScaleBarOverlay.setAlignRight(true);
+            mScaleBarOverlay.setTextSize(35);
+            mScaleBarOverlay.setUnitsOfMeasure(ScaleBarOverlay.UnitsOfMeasure.metric);
+            mScaleBarOverlay.setEnabled(true);
+            map_osm_tl.getOverlays().add(mScaleBarOverlay);
 
             GeoPoint startPoint = new GeoPoint(45.208456, 7.137358);
             mapController = map_osm_tl.getController();
@@ -165,15 +175,7 @@ public class TracksListActivity extends AppCompatActivity {
                         Dlg_Confirm("NO_ITEM_SELECTED");
                         return true;
                     }
-                    /*
-                    if (cnt > 1) {
-                        Dlg_Confirm("SELECT_ONLY_ONE_ITEM");
-                        return true;
-                    }
-                    */
                     trackId_to_modify = myLstAdaper.getLastTrackIdSelected();
-
-                    trackName_to_modify = track_ArrayList.get(myLstAdaper.getPositionsSelected().get(0)).getTrackName();
 
                     Dlg_Confirm("DELETE_TRACKS");
 
@@ -443,8 +445,15 @@ public class TracksListActivity extends AppCompatActivity {
                     break;
 
                case "DELETE_TRACKS":
-                    dlg.setTitle("Delete");
-                    dlg.setMessage("Do you want to delete selected track(s)?");
+                    dlg.setTitle("Delete Track(s)");
+
+                   String msg = "Do you want to delete these track(s)?" + System.getProperty("line.separator");
+
+                   for(int pos: myLstAdaper.getPositionsSelected()){
+                       msg = msg + " - " + track_ArrayList.get(myLstAdaper.getPositionsSelected().get(pos)).getTrackName() + System.getProperty("line.separator");
+                   }
+
+                   dlg.setMessage(msg);
 
                     dlg.setButton(DialogInterface.BUTTON_POSITIVE, "DELETE", new DialogInterface.OnClickListener() {
                         @Override
