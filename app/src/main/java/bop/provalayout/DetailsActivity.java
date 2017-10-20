@@ -21,6 +21,7 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
@@ -44,6 +45,13 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.jjoe64.graphview.series.DataPoint;
 
+import org.osmdroid.api.IMapController;
+import org.osmdroid.util.BoundingBox;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.ScaleBarOverlay;
+import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
+
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +60,6 @@ public class DetailsActivity extends AppCompatActivity {
 
     private String[] arr_itemsChecked = new String[]{};
     private int array_color[] = {Color.BLUE, Color.RED, Color.GREEN, Color.BLACK, Color.GRAY, Color.MAGENTA, Color.YELLOW, Color.WHITE};
-    private SeekBar seekBar_m, seekBar_t;
     private TextView tv_length_0, tv_h_max_0, tv_h_min_0, tv_delta_h_pos_0, tv_delta_h_neg_0, tv_during_0, tv_name_0, tv_startdate_0, tv_endate_0;
     private TextView tv_length_1, tv_h_max_1, tv_h_min_1, tv_delta_h_pos_1, tv_delta_h_neg_1, tv_during_1, tv_name_1, tv_startdate_1, tv_endate_1;
     private Switch sw_visible_0;
@@ -64,6 +71,15 @@ public class DetailsActivity extends AppCompatActivity {
     private String selected_date="";
     private Global gbl = new Global();
     private int screen_width = 0;
+    private MapView map;
+    private IMapController mapController;
+    private LineChart chart_distance,  chart_hd ;
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private ViewPager mViewPager;
+    private ArrayList<Track_OSM> t_lst = new ArrayList();
+    private int rotator_index = 0;
+    private Track_OSM selTrack;
+    private SeekBar sb;
 
     @Override
     public void onBackPressed() {
@@ -75,8 +91,81 @@ public class DetailsActivity extends AppCompatActivity {
         myDatabase.close();
     }
 
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
+    private void initializeMap(){
+
+        map = (MapView) findViewById(R.id.map_details);
+        map.setTileProvider(gbl.getTileProviderArray());
+        map.setMultiTouchControls(true);
+        map.setTilesScaledToDpi(true);
+
+
+        map.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+
+                        if(rotator_index==0)
+                            rotator_index =1;
+                        else
+                            rotator_index =0;
+                        selTrack = t_lst.get(rotator_index);
+                        sb.setMax(selTrack.lst_geoPoint.size() - 1);
+                        zoomBoundingBox(selTrack);
+                        map.invalidate();
+
+                        return false;
+                    default:
+                        return true;
+                }
+            }
+        });
+
+        RotationGestureOverlay mRotationGestureOverlay = new RotationGestureOverlay(map);
+        mRotationGestureOverlay.setEnabled(false);
+        map.getOverlays().add(mRotationGestureOverlay);
+
+        // gestione della scala
+        ScaleBarOverlay mScaleBarOverlay = new ScaleBarOverlay(map);
+        mScaleBarOverlay.setCentred(true);
+        mScaleBarOverlay.setAlignRight(true);
+        mScaleBarOverlay.setTextSize(35);
+        mScaleBarOverlay.setUnitsOfMeasure(ScaleBarOverlay.UnitsOfMeasure.metric);
+        mScaleBarOverlay.setEnabled(true);
+        map.getOverlays().add(mScaleBarOverlay);
+
+        map.invalidate();
+
+        GeoPoint startPoint = new GeoPoint(45.208456, 7.137358);
+        mapController = map.getController();
+        mapController.setZoom(10);
+        mapController.setCenter(startPoint);
+    }
+
+    //Consente di disegnare la traccia sulla mappa OSM
+    private void drawTrackOnMap_OSM(Track_OSM track_osm, int color) {
+
+        try {
+            org.osmdroid.views.overlay.Polyline polyLine = track_osm.polyline;
+            polyLine.setColor(color);
+
+            map.getOverlays().add(polyLine);
+            map.getOverlays().add(track_osm.startMarker);
+            map.getOverlays().add(track_osm.endMarker);
+
+        } catch (Exception e) {
+            gbl.myLog( "ERRORE in drawTrackOnMap_OSM [" + e.toString() + "]");
+
+        }
+    }
+
+    private void zoomBoundingBox(Track_OSM t){
+        if (t!=null) {
+            BoundingBox b = selTrack.boundingBox;
+            mapController.setCenter(b.getCenter());
+            mapController.zoomToSpan(b.getLatitudeSpan(), b.getLongitudeSpan());
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,8 +183,47 @@ public class DetailsActivity extends AppCompatActivity {
             arr_trackId = extras.getStringArray("arr_trackId");
             arr_itemsChecked = extras.getStringArray("arr_itemsChecked");
             selected_date = extras.getString("selected_date");
-
         }
+
+        initializeMap();
+
+        ArrayList<Integer> color_lst = new ArrayList<>();
+        color_lst.add(Color.BLUE);
+        color_lst.add(Color.RED);
+
+        int color_index = 0;
+        for(String trackId:arr_itemsChecked){
+            Track_OSM t = gbl.getTrackOsmCollection().getTrackFromCollectionByTrackId(trackId);
+            t_lst.add(t);
+            drawTrackOnMap_OSM(t,color_lst.get(color_index++));
+        }
+
+        selTrack = t_lst.get(0);
+        zoomBoundingBox(selTrack);
+
+        sb = (SeekBar) findViewById(R.id.seekBar_det_map);
+
+        sb.setMax(selTrack.lst_geoPoint.size() - 1);
+        sb.setProgress(0);
+        sb.invalidate();
+
+        sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                map.getOverlays().removeAll(selTrack.lst_marker);
+                map.getOverlays().add(selTrack.lst_marker.get(progress));
+                map.invalidate();
+
+                chart_distance.highlightValue(selTrack.incr_time.get(progress),rotator_index);
+                chart_hd.highlightValue(selTrack.incr_distance.get(progress),rotator_index);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.tb_details);
         setSupportActionBar(toolbar);
@@ -118,7 +246,6 @@ public class DetailsActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
     }
-
 
     // Consente di spostarsi nella vista con la mappa
     public void startMainActivity() {
@@ -177,9 +304,6 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
     public static class PlaceholderFragment extends Fragment {
         /**
          * The fragment argument representing the section number for this
@@ -230,10 +354,6 @@ public class DetailsActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -434,19 +554,14 @@ public class DetailsActivity extends AppCompatActivity {
     public void initializeTimeCharts(View rootView) {
         try {
             LineDataSet dataSet = null,dataSet_alt=null;// add entries to dataset
-            final LineChart chart_distance = (LineChart) rootView.findViewById(R.id.chart_distance);
+            chart_distance = (LineChart) rootView.findViewById(R.id.chart_distance);
             final LineChart chart_height = (LineChart) rootView.findViewById(R.id.chart_height);
-            seekBar_t = (SeekBar) rootView.findViewById(R.id.seekBar_dt);
             List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>(),dataSets_alt = new ArrayList<ILineDataSet>();
 
             DataPoint[] arr_dp = null, arr_dp_alt = null;
             List<Entry> entries =null,entries_alt =null,entries_hd =null;
             float x = 0, y = 0;
 
-            if (arr_itemsChecked.length>1) {
-                if (seekBar_t != null )
-                    seekBar_t.setVisibility(SeekBar.INVISIBLE);
-            }
 
             String[] retTracksName = new String[arr_itemsChecked.length];
             retTracksName = getTracksName();
@@ -521,24 +636,8 @@ public class DetailsActivity extends AppCompatActivity {
             chart_distance.setDescription(title_chart);
             chart_distance.invalidate(); // refresh
 
-            seekBar_t.setMax((int)xAxis_distance.getAxisMaximum());
-
-            seekBar_t.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    chart_distance.highlightValue(progress,0);
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-
-                }
-            });
+            //yAxis_L_distance.setAxisMaximum(Integer.parseInt(t.getLength()));
+            //yAxis_R_distance.setAxisMaximum(Integer.parseInt(t.getLength()));
 
             // Creo il grafico della ALTEZZA in funzione del TEMPO
             LineData lineData_alt = new LineData(dataSets_alt);
@@ -574,9 +673,8 @@ public class DetailsActivity extends AppCompatActivity {
         try {
             LineDataSet dataSet = null,dataSet_alt=null,dataSet_hd=null; // add entries to dataset
 
-            final LineChart chart_hd = (LineChart) rootView.findViewById(R.id.chart_d_h);
+            chart_hd = (LineChart) rootView.findViewById(R.id.chart_d_h);
 
-            seekBar_m = (SeekBar) rootView.findViewById(R.id.seekBar_hd);
             List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>(),dataSets_alt = new ArrayList<ILineDataSet>(),dataSets_hd = new ArrayList<ILineDataSet>();
 
             DataPoint[] arr_dp = null, arr_dp_alt = null;
@@ -585,10 +683,6 @@ public class DetailsActivity extends AppCompatActivity {
 
             //arr_itemsChecked = myDatabase.getVisibleTrackId();
 
-            if (arr_itemsChecked.length>1) {
-                if (seekBar_m != null )
-                    seekBar_m.setVisibility(SeekBar.INVISIBLE);
-            }
 
             String[] retTracksName = new String[arr_itemsChecked.length];
             retTracksName = getTracksName();
@@ -607,6 +701,7 @@ public class DetailsActivity extends AppCompatActivity {
                 entries_hd = new ArrayList<Entry>();
                 arr_dp = new DataPoint[]{};
                 arr_dp=lst_DP_Array.get(0);
+
                 for (int i = 0; i < arr_dp.length; i++) {
                     x = (float) arr_dp[i].getX();
                     y = (float) arr_dp[i].getY();
@@ -659,18 +754,6 @@ public class DetailsActivity extends AppCompatActivity {
             chart_hd.setDescription(title_chart);
             chart_hd.invalidate(); // refresh
 
-            seekBar_m.setMax((int)xAxis_hd.getAxisMaximum());
-
-            seekBar_m.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    chart_hd.highlightValue(progress,0);
-                }
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) { }
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) { }
-            });
         }
         catch(Exception e){gbl.myLog( "onCreate --> ERRORE["+e.toString()+"]");}
     }
@@ -695,7 +778,7 @@ public class DetailsActivity extends AppCompatActivity {
     private ArrayList<DataPoint[]> getDataPoints(String trackId) {
         try {
             int LAT = 2, LON = 3, ALT = 4, TIME = 5;
-            double cur_lat = 0, cur_lon = 0, old_lat = -1, old_lon = -1,alt=0;
+            double cur_lat = 0, cur_lon = 0, old_lat = -1, old_lon = -1,alt=0,old_alt=0;
             long cur_time = 0, old_time = 0, deltaT = 0;
             float distance = 0, incremental_D = 0, incremental_T = 0;
 
@@ -826,23 +909,7 @@ public class DetailsActivity extends AppCompatActivity {
                         break;
 
                 }
-                if (arr_itemsChecked.length == 1) {
-                    switch(mtypeOfChart){
-                        case "DIST-TEMPO":
-                        case "ALT-TEMPO":
-                            seekBar_t.setProgress((int) e.getX());
-                            seekBar_t.invalidate();
-                            break;
-                        case "ALT-DIST":
-                            seekBar_m.setProgress((int) e.getX());
-                            seekBar_m.invalidate();
-                            break;
-                        default:
-                            tv_content.setText("");
-                            break;
-                    }
 
-                }
             }
 
             catch(Exception ex){gbl.myLog( "refreshContent --> ERRORE["+ex.toString()+"]");};

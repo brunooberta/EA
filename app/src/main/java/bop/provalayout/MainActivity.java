@@ -657,19 +657,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             seekBar_map.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     map_osm.getOverlays().removeAll(gbl.getSelectTrack_osm().lst_marker);
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                    int progress = seekBar_map.getProgress();
                     map_osm.getOverlays().add(gbl.getSelectTrack_osm().lst_marker.get(progress));
                     gbl.getSelectTrack_osm().lst_marker.get(progress).showInfoWindow();
+                    map_osm.invalidate();
                 }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {}
             });
 
             map_osm.setOnTouchListener(new View.OnTouchListener() {
@@ -1492,7 +1491,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     // Determina la lunghezza della traccia che sto registrando
     private void get_track_data() {
         try {
-            LatLng p_prec = null, p = null;
+            GeoPoint p_prec = null, p = null;
             double h=0, h_prec=0;
             int LAT = 1, LON = 2, ALT = 3, TIME=4;
             //Prendo i dati da Location
@@ -1510,7 +1509,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             //Prendo i dati relativi alla traccia
             for(int i=0;i<cur.getCount();i++){
-                p = new LatLng(cur.getDouble(LAT),cur.getDouble(LON));
+                p = new GeoPoint(cur.getDouble(LAT),cur.getDouble(LON),0.0);
                 h = cur.getDouble(ALT);
 
                 if (i==0){
@@ -1530,7 +1529,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 if (h<h_min) h_min = h;
 
                 if (i > 0) {
-                    trackLength += SphericalUtil.computeDistanceBetween(p_prec, p);
+                    trackLength += p_prec.distanceTo(p);
                     // Tengo conto del dislivello con il teorema di pitagora ??? per coerenza con gli altri calcoli per ora lo commento...
                     //double delta_h = Math.abs(h_prec-h);
                     //double delta_d = SphericalUtil.computeDistanceBetween(p_prec, p);

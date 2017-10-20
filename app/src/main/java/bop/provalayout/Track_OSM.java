@@ -24,9 +24,6 @@ public class Track_OSM {
     private int mTrackColor;
     private String mTrackId;
     private GPSDatabase mDatabase;
-
-
-
     private String mName = "";
     private String mLength = "";
     private String mHmax="";
@@ -37,10 +34,8 @@ public class Track_OSM {
     private String mEndDate="";
     private String mDuring="";
     private boolean mIsSelected=false;
-
     private boolean mIsVisible = false;
     private Global gbl = new Global();
-
     public Polyline polyline;
     public ArrayList<Marker> lst_marker;
     public ArrayList<EA_Marker> lst_waypoints_marker;
@@ -48,6 +43,9 @@ public class Track_OSM {
     public List<GeoPoint> lst_geoPoint;
     public EA_Marker startMarker, endMarker;
     public BoundingBox boundingBox;
+
+    public ArrayList<Float> incr_distance = new ArrayList<>();
+    public ArrayList<Float> incr_time = new ArrayList<>();
 
     private MapView mMap;
     private Context mCtx;
@@ -122,14 +120,6 @@ public class Track_OSM {
         lst_waypoints_marker = getWayPointList();
     }
 
-    public String getStartDate() {
-        return mStartDate;
-    }
-
-    public String getEndDate() {
-        return mEndDate;
-    }
-
     public Track_OSM(String trackId, GPSDatabase db) {
         int NAME=0,VISIBLE=1,LENGTH=2,HMAX=3,HMIN=4,DELTAHPOS=5,DELTAHNEG=6,DURING=7,START=8,END=9;
         mTrackColor = 0;
@@ -161,6 +151,14 @@ public class Track_OSM {
         lst_waypoints_marker = getWayPointList();
     }
 
+    public String getStartDate() {
+        return mStartDate;
+    }
+
+    public String getEndDate() {
+        return mEndDate;
+    }
+
     private void updOrientationOfDirectionMarker(){
 
         if(mMap.getMapOrientation()==gbl.getMapOrientation())
@@ -173,21 +171,38 @@ public class Track_OSM {
 
     }
 
+    // Passaggio da Geopoint a Location perchè è più preciso nel determinare la distanceTo
+    private float getDistance(GeoPoint gp_a, GeoPoint gp_b){
+        Location loc_a = new Location("LOC_A"), loc_b = new Location("LOC_b");
+
+        loc_a.setLatitude(gp_a.getLatitude());
+        loc_a.setLongitude(gp_a.getLongitude());
+
+        loc_b.setLatitude(gp_b.getLatitude());
+        loc_b.setLongitude(gp_b.getLongitude());
+
+        return loc_a.distanceTo(loc_b);
+    }
+
     private Polyline getPolyline() {
-        int LOCID=1,LAT = 2, LON = 3, ALT = 4;
+        int LOCID=1,LAT = 2, LON = 3, ALT = 4,TIME=5;
         Cursor positions_cur;
         String whereFields = "trackId=?";
         String[] whereValues = new String[]{mTrackId};
         GeoPoint lastGeoPoint = new GeoPoint(0.0, 0.0, 0.0);
+        float lastTime = 0;
         lst_geoPoint =  new ArrayList<>();
-
         Polyline polyline = new Polyline();
 
+
+
         try {
-            double maxLat = -1, minLat = 99999, maxLon = -1, minLon = 99999, d = 0, h = 0;
+            double maxLat = -1, minLat = 99999, maxLon = -1, minLon = 99999;
+            float d = 0, h = 0;
             positions_cur = mDatabase.choiceData("track", whereFields, whereValues);
             positions_cur.moveToFirst();
             GeoPoint gp_direction = new GeoPoint(0,0,0.0);
+
             //Prendo la lista delle posizioni della traccia passata in input
 
             for (int i = 0; i < positions_cur.getCount(); i++) {
@@ -202,6 +217,11 @@ public class Track_OSM {
 
                 lst_geoPoint.add(gp);
 
+                if (i>0)
+                    d += getDistance(gp,lastGeoPoint);
+
+                String snippet = "";
+
                 if (i==0){
                     mStartLoc = gp;
                     startMarker = new EA_Marker(mMap,positions_cur.getInt(LOCID));
@@ -211,11 +231,8 @@ public class Track_OSM {
                     startMarker.setSnippet(String.format("d:%.0fm - Alt:%.0fm", d,gp.getAltitude()));
                     startMarker.setIcon(ResourcesCompat.getDrawable(mCtx.getResources(),R.mipmap.flag_map_marker_green,null));
                 }
-
-                if (i>0)
-                    d += gp.distanceTo(lastGeoPoint);
-
-                String snippet = String.format("d:%.0fm - Alt:%.0fm", d,gp.getAltitude());
+                else
+                    snippet = String.format("d:%.0fm - Alt:%.0fm", d,gp.getAltitude());
 
                 org.osmdroid.views.overlay.Marker cur_marker = new org.osmdroid.views.overlay.Marker(mMap);
                 cur_marker.setPosition(gp);
@@ -245,8 +262,23 @@ public class Track_OSM {
                     lst_direction_marker.add(dir_marker);
                 }
 
+                incr_distance.add(d);
+
+                if(i>0){
+
+                    float relative_time = positions_cur.getFloat(TIME) - lastTime;
+
+                    float total_time = incr_time.get(i-1) + relative_time;
+
+                    incr_time.add(total_time);
+
+                }else{
+                    incr_time.add((float)0);
+                }
+
 
                 lastGeoPoint = gp;
+                lastTime = positions_cur.getFloat(TIME);
                 positions_cur.moveToNext();
             }
 

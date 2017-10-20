@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
@@ -29,6 +31,7 @@ import org.osmdroid.api.IMapController;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
+import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -84,6 +87,10 @@ public class TracksListActivity extends AppCompatActivity {
             map_osm_tl.invalidate();
             map_osm_tl.setEnabled(false);
 
+            RotationGestureOverlay mRotationGestureOverlay = new RotationGestureOverlay(map_osm_tl);
+            mRotationGestureOverlay.setEnabled(false);
+            map_osm_tl.getOverlays().add(mRotationGestureOverlay);
+
             ScaleBarOverlay mScaleBarOverlay = new ScaleBarOverlay(map_osm_tl);
             mScaleBarOverlay.setCentred(true);
             mScaleBarOverlay.setAlignRight(true);
@@ -91,6 +98,13 @@ public class TracksListActivity extends AppCompatActivity {
             mScaleBarOverlay.setUnitsOfMeasure(ScaleBarOverlay.UnitsOfMeasure.metric);
             mScaleBarOverlay.setEnabled(true);
             map_osm_tl.getOverlays().add(mScaleBarOverlay);
+
+            map_osm_tl.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    return true;
+                }
+            });
 
             GeoPoint startPoint = new GeoPoint(45.208456, 7.137358);
             mapController = map_osm_tl.getController();
@@ -330,6 +344,8 @@ public class TracksListActivity extends AppCompatActivity {
        try {
             org.osmdroid.views.overlay.Polyline polyLine = track_osm.polyline;
             lst_polyline.add(polyLine);
+            polyLine.setColor(Color.BLACK);
+           
             map_osm_tl.getOverlays().add(polyLine);
             map_osm_tl.getOverlays().add(track_osm.startMarker);
             map_osm_tl.getOverlays().add(track_osm.endMarker);
@@ -447,12 +463,13 @@ public class TracksListActivity extends AppCompatActivity {
                case "DELETE_TRACKS":
                     dlg.setTitle("Delete Track(s)");
 
-                   String msg = "Do you want to delete these track(s)?" + System.getProperty("line.separator");
-
+                   String msg = "Do you want to delete these tracks?" + System.getProperty("line.separator");
+//TODO: capire come mai va fuori range
+                   /*
                    for(int pos: myLstAdaper.getPositionsSelected()){
                        msg = msg + " - " + track_ArrayList.get(myLstAdaper.getPositionsSelected().get(pos)).getTrackName() + System.getProperty("line.separator");
                    }
-
+*/
                    dlg.setMessage(msg);
 
                     dlg.setButton(DialogInterface.BUTTON_POSITIVE, "DELETE", new DialogInterface.OnClickListener() {

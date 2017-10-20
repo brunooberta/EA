@@ -43,6 +43,23 @@
 
         </android.support.v7.widget.Toolbar>
 
+        <org.osmdroid.views.MapView
+            android:id="@+id/map_details"
+            tilesource="Mapnik"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_weight="1" />
+
+
+        <SeekBar
+            android:id="@+id/seekBar_det_map"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/SeekBarColor"
+            android:thumb="@drawable/sb_thumb"
+            android:layout_weight="1"/>
+
+
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
