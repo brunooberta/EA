@@ -7,6 +7,8 @@ import android.location.Location;
 import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 
+import com.jjoe64.graphview.series.DataPoint;
+
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -44,8 +46,7 @@ public class Track_OSM {
     public EA_Marker startMarker, endMarker;
     public BoundingBox boundingBox;
 
-    public ArrayList<Float> incr_distance = new ArrayList<>();
-    public ArrayList<Float> incr_time = new ArrayList<>();
+    public DataPoint[] dp_distance = null, dp_altitude = null;
 
     private MapView mMap;
     private Context mCtx;
@@ -193,7 +194,7 @@ public class Track_OSM {
         float lastTime = 0;
         lst_geoPoint =  new ArrayList<>();
         Polyline polyline = new Polyline();
-
+        float relative_time=0, total_time=0;
 
 
         try {
@@ -204,7 +205,8 @@ public class Track_OSM {
             GeoPoint gp_direction = new GeoPoint(0,0,0.0);
 
             //Prendo la lista delle posizioni della traccia passata in input
-
+            dp_distance = new DataPoint[positions_cur.getCount()];
+            dp_altitude = new DataPoint[positions_cur.getCount()];
             for (int i = 0; i < positions_cur.getCount(); i++) {
 
                 GeoPoint gp = new GeoPoint(positions_cur.getDouble(LAT), positions_cur.getDouble(LON), positions_cur.getDouble(ALT));
@@ -217,8 +219,14 @@ public class Track_OSM {
 
                 lst_geoPoint.add(gp);
 
-                if (i>0)
-                    d += getDistance(gp,lastGeoPoint);
+                if (i>0) {
+                    d += getDistance(gp, lastGeoPoint);
+                    relative_time = positions_cur.getFloat(TIME) - lastTime;
+                    total_time = total_time + relative_time;
+                }else {
+                    d=0;
+                    total_time = 0;
+                }
 
                 String snippet = "";
 
@@ -262,20 +270,11 @@ public class Track_OSM {
                     lst_direction_marker.add(dir_marker);
                 }
 
-                incr_distance.add(d);
 
-                if(i>0){
-
-                    float relative_time = positions_cur.getFloat(TIME) - lastTime;
-
-                    float total_time = incr_time.get(i-1) + relative_time;
-
-                    incr_time.add(total_time);
-
-                }else{
-                    incr_time.add((float)0);
-                }
-
+                DataPoint dp = new DataPoint(total_time,d);
+                dp_distance[i]= dp;
+                DataPoint dp_alt = new DataPoint(total_time,positions_cur.getDouble(ALT));
+                dp_altitude[i] = dp_alt;
 
                 lastGeoPoint = gp;
                 lastTime = positions_cur.getFloat(TIME);

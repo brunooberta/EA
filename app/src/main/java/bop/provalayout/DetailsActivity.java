@@ -187,15 +187,11 @@ public class DetailsActivity extends AppCompatActivity {
 
         initializeMap();
 
-        ArrayList<Integer> color_lst = new ArrayList<>();
-        color_lst.add(Color.BLUE);
-        color_lst.add(Color.RED);
-
         int color_index = 0;
         for(String trackId:arr_itemsChecked){
             Track_OSM t = gbl.getTrackOsmCollection().getTrackFromCollectionByTrackId(trackId);
             t_lst.add(t);
-            drawTrackOnMap_OSM(t,color_lst.get(color_index++));
+            drawTrackOnMap_OSM(t,array_color[color_index++]);
         }
 
         selTrack = t_lst.get(0);
@@ -214,8 +210,8 @@ public class DetailsActivity extends AppCompatActivity {
                 map.getOverlays().add(selTrack.lst_marker.get(progress));
                 map.invalidate();
 
-                chart_distance.highlightValue(selTrack.incr_time.get(progress),rotator_index);
-                chart_hd.highlightValue(selTrack.incr_distance.get(progress),rotator_index);
+                chart_distance.highlightValue((float)selTrack.dp_distance[progress].getX(),rotator_index);
+                chart_hd.highlightValue((float)selTrack.dp_distance[progress].getY(),rotator_index);
             }
 
             @Override
@@ -561,7 +557,7 @@ public class DetailsActivity extends AppCompatActivity {
             DataPoint[] arr_dp = null, arr_dp_alt = null;
             List<Entry> entries =null,entries_alt =null,entries_hd =null;
             float x = 0, y = 0;
-
+            int DISTANZA = 0, ALTEZZA = 1;
 
             String[] retTracksName = new String[arr_itemsChecked.length];
             retTracksName = getTracksName();
@@ -569,39 +565,15 @@ public class DetailsActivity extends AppCompatActivity {
             //Prendo i dati da inserire nel grafico dal DB
             // j è l'indice che punto una delle tracce che ho selezionato nella View delle tracce salvate
             for (int j = 0; j < arr_itemsChecked.length; j++) {
-                x = 0;
-                y = 0;
 
                 ArrayList<DataPoint[]> lst_DP_Array = new ArrayList<DataPoint[]>();
                 lst_DP_Array = getDataPoints(arr_itemsChecked[j]);
 
-                // Raccolgo i dati relativi al grafico DISTANZA / TEMPO
-                entries = new ArrayList<Entry>();
-
-                arr_dp=lst_DP_Array.get(0);
-                for (int i = 0; i < arr_dp.length; i++) {
-                    x = (float) arr_dp[i].getX();
-                    y = (float) arr_dp[i].getY();
-                    entries.add(new Entry(x, y));
-                }
-                dataSet = new LineDataSet(entries, retTracksName[j]);
-                dataSet.setDrawCircles(false); // Disabilita gli indicatori sul grafico
-                dataSet.setColor(array_color[j]);
+                dataSet = getLineDataSet(lst_DP_Array, DISTANZA, retTracksName[j], j);
+                dataSet_alt = getLineDataSet(lst_DP_Array, ALTEZZA, retTracksName[j], j);
                 dataSets.add(dataSet);
-
-                // Raccolgo i dati relativi al grafico ALTEZZA / TEMPO
-                entries_alt = new ArrayList<Entry>();
-                arr_dp_alt =  new DataPoint[]{};
-                arr_dp_alt = lst_DP_Array.get(1);
-                for (int i = 0; i < arr_dp_alt.length; i++) {
-                    x = (float) arr_dp_alt[i].getX();
-                    y = (float) arr_dp_alt[i].getY();
-                    entries_alt.add(new Entry(x, y));
-                }
-                dataSet_alt = new LineDataSet(entries_alt, retTracksName[j]);
-                dataSet_alt.setDrawCircles(false);
-                dataSet_alt.setColor(array_color[j]);
                 dataSets_alt.add(dataSet_alt);
+
             }
 
             Description title_chart = new Description();
@@ -636,9 +608,6 @@ public class DetailsActivity extends AppCompatActivity {
             chart_distance.setDescription(title_chart);
             chart_distance.invalidate(); // refresh
 
-            //yAxis_L_distance.setAxisMaximum(Integer.parseInt(t.getLength()));
-            //yAxis_R_distance.setAxisMaximum(Integer.parseInt(t.getLength()));
-
             // Creo il grafico della ALTEZZA in funzione del TEMPO
             LineData lineData_alt = new LineData(dataSets_alt);
             chart_height.setData(lineData_alt);
@@ -669,7 +638,40 @@ public class DetailsActivity extends AppCompatActivity {
         catch(Exception e){gbl.myLog( "onCreate --> ERRORE["+e.toString()+"]");}
     }
 
-    public void initializeMetricCharts(View rootView) {
+    private LineDataSet getLineDataSet(ArrayList<DataPoint[]> dp_lst, int index, String trackName, int colorIndex){
+        float x=0,y=0;
+        DataPoint[] arr_dp = null;
+        arr_dp=dp_lst.get(index);
+        ArrayList<Entry> entries = new ArrayList<>();
+
+        for (int i = 0; i < arr_dp.length; i++) {
+            x = (float) arr_dp[i].getX();
+            y = (float) arr_dp[i].getY();
+            entries.add(new Entry(x, y));
+        }
+        LineDataSet dataSet = new LineDataSet(entries, trackName);
+        dataSet.setDrawCircles(false); // Disabilita gli indicatori sul grafico
+        dataSet.setColor(array_color[colorIndex]);
+
+        return dataSet;
+    }
+
+    private ArrayList<Entry> getEntries(ArrayList<DataPoint[]> dp_lst, int index){
+        float x=0,y=0;
+        DataPoint[] arr_dp = null;
+        arr_dp=dp_lst.get(index);
+        ArrayList<Entry> entries = new ArrayList<>();
+
+        for (int i = 0; i < arr_dp.length; i++) {
+            x = (float) arr_dp[i].getX();
+            y = (float) arr_dp[i].getY();
+            entries.add(new Entry(x, y));
+        }
+
+        return entries;
+    }
+
+    private void initializeMetricCharts(View rootView) {
         try {
             LineDataSet dataSet = null,dataSet_alt=null,dataSet_hd=null; // add entries to dataset
 
@@ -680,8 +682,7 @@ public class DetailsActivity extends AppCompatActivity {
             DataPoint[] arr_dp = null, arr_dp_alt = null;
             List<Entry> entries =null,entries_alt =null,entries_hd =null;
             float x = 0, y = 0;
-
-            //arr_itemsChecked = myDatabase.getVisibleTrackId();
+            int DISTANZA=0, ALTEZZA=1;
 
 
             String[] retTracksName = new String[arr_itemsChecked.length];
@@ -699,34 +700,14 @@ public class DetailsActivity extends AppCompatActivity {
                 // Raccolgo i dati relativi al grafico DISTANZA / TEMPO
                 entries = new ArrayList<Entry>();
                 entries_hd = new ArrayList<Entry>();
-                arr_dp = new DataPoint[]{};
-                arr_dp=lst_DP_Array.get(0);
-
-                for (int i = 0; i < arr_dp.length; i++) {
-                    x = (float) arr_dp[i].getX();
-                    y = (float) arr_dp[i].getY();
-                    entries.add(new Entry(x, y));
-                }
-                dataSet = new LineDataSet(entries, retTracksName[j]);
-                dataSet.setDrawCircles(false); // Disabilita gli indicatori sul grafico
-                dataSet.setColor(array_color[j]);
-                dataSets.add(dataSet);
-
-                // Raccolgo i dati relativi al grafico ALTEZZA / TEMPO
                 entries_alt = new ArrayList<Entry>();
-                arr_dp_alt = lst_DP_Array.get(1);
-                for (int i = 0; i < arr_dp_alt.length; i++) {
-                    x = (float) arr_dp_alt[i].getX();
-                    y = (float) arr_dp_alt[i].getY();
-                    entries_alt.add(new Entry(x, y));
-                }
-                dataSet_alt = new LineDataSet(entries_alt, retTracksName[j]);
-                dataSet_alt.setDrawCircles(false);
-                dataSet_alt.setColor(array_color[j]);
-                dataSets_alt.add(dataSet_alt);
 
-                // Raccolgo i dati relativi al grafico ALTEZZA / DISTANZA
-                for (int i = 0; i < arr_dp_alt.length; i++) {
+
+                entries = getEntries(lst_DP_Array, DISTANZA);
+                entries_alt = getEntries(lst_DP_Array, ALTEZZA);
+
+                  // Raccolgo i dati relativi al grafico ALTEZZA / DISTANZA
+                for (int i = 0; i < entries.size(); i++) {
                     x = entries.get(i).getY();
                     y = entries_alt.get(i).getY();
                     entries_hd.add(new Entry(x, y));
@@ -832,6 +813,22 @@ public class DetailsActivity extends AppCompatActivity {
 
             lst_dp_arr.add(arr_dp);
             lst_dp_arr.add(arr_dp_alt);
+
+            return lst_dp_arr;
+
+        } catch (Exception e) {
+            gbl.myLog("ERRORE in getDistance ["+e.toString()+"]");
+            return null;
+        }
+    }
+
+    private ArrayList<DataPoint[]> getDataPoints(Track_OSM t) {
+        try {
+
+            ArrayList<DataPoint[]> lst_dp_arr = new ArrayList<DataPoint[]>();
+
+            lst_dp_arr.add(t.dp_distance);
+            lst_dp_arr.add(t.dp_altitude);
 
             return lst_dp_arr;
 

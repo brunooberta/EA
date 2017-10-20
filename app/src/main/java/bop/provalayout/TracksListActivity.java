@@ -345,7 +345,7 @@ public class TracksListActivity extends AppCompatActivity {
             org.osmdroid.views.overlay.Polyline polyLine = track_osm.polyline;
             lst_polyline.add(polyLine);
             polyLine.setColor(Color.BLACK);
-           
+
             map_osm_tl.getOverlays().add(polyLine);
             map_osm_tl.getOverlays().add(track_osm.startMarker);
             map_osm_tl.getOverlays().add(track_osm.endMarker);
