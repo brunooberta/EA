@@ -44,44 +44,44 @@
             android:value="@string/facebook_app_id" />
 
         <activity
-            android:name="bop.provalayout.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize"/>
 
         <activity
-            android:name="bop.provalayout.TracksListActivity"
+            android:name=".TracksListActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
 
         <activity
-            android:name="bop.provalayout.EA_FileChooserActivity"
+            android:name=".EA_FileChooserActivity"
             android:label="Choose File"
             android:theme="@style/AppTheme.NoActionBar" />
 
 
         <activity
-            android:name="bop.provalayout.DetailsActivity"
+            android:name=".DetailsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="bop.provalayout.WayPointsListActivity"
+            android:name=".WayPointsListActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="orientation|keyboardHidden|screenSize"/>
         <activity
-            android:name="bop.provalayout.WayPointDetailActivity"
+            android:name=".WayPointDetailActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden"
             android:configChanges="orientation|keyboardHidden|screenSize"/>
         <activity
-            android:name="bop.provalayout.SettingsActivity"
+            android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="bop.provalayout.MainActivity">
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="bop.provalayout.MainActivity" />
+                android:value=".MainActivity" />
         </activity>
         <activity
-            android:name="bop.provalayout.SplashActivity"
+            android:name=".SplashActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -93,12 +93,12 @@
         <service android:name=".ActivityRecognizedService" />
 
         <service
-            android:name="bop.provalayout.LocationService"
+            android:name=".LocationService"
             android:enabled="true"
             android:exported="true" />
 
         <activity
-            android:name="bop.provalayout.FBLoginActivity"
+            android:name=".FBLoginActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="com.facebook.FacebookActivity"
@@ -115,7 +115,7 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-        <activity android:name="bop.provalayout.ShareActivity"
+        <activity android:name=".ShareActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <provider
@@ -123,8 +123,8 @@
             android:authorities="com.facebook.app.FacebookContentProvider1553731234648288"
             android:exported="true" />
 
-        <activity android:name="bop.provalayout.WPListActivity" />
-        <activity android:name="bop.provalayout.CalendarActivity"
+        <activity android:name=".WPListActivity" />
+        <activity android:name=".CalendarActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
 
     </application>
