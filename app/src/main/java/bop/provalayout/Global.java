@@ -45,10 +45,10 @@ public class Global {
     static public int pref_map_offline_zoom_min=0;
     static public int pref_default_zoom=-1;
     static public String pref_map_offline="";
-
     static private boolean LOG_TO_FILE = true;
-
     static private DetectedActivity activity = new DetectedActivity(DetectedActivity.UNKNOWN,100);
+
+    public static boolean APP_FREE = false;
 
     public static DetectedActivity getActivity() {return activity;}
     public static void setActivity(DetectedActivity activity) {Global.activity = activity;}

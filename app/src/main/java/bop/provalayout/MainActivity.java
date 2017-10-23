@@ -300,6 +300,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+        if(gbl.APP_FREE){
+            T_STOP = 20;
+        }else{
+            T_STOP = 0;
+        }
+
         try {
             setContentView(R.layout.activity_main);
 
@@ -362,7 +369,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             myDatabase = new GPSDatabase(this);
             myDatabase.open();
 
-            isRecording = get_StartTracking(); // Verifico se è in corso una registrazione
+            if(!gbl.APP_FREE)
+                isRecording = get_StartTracking(); // Verifico se è in corso una registrazione
+            else
+                isRecording = false;
 
             if(isRecording)  {
                 isFirstPointToTrack = true;
@@ -820,6 +830,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         if(cur.getCount()>0)
             startDate_sec = cur.getLong(TIME)*1000;
 
+        cur.close();
         return startDate_sec;
     }
     private void showMarkerDirectionOnTrack(boolean isForcedToHide){

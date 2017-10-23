@@ -450,7 +450,7 @@ public class DetailsActivity extends AppCompatActivity {
                 if ( i == 0) {
 
                     tv_name_0 = (TextView) rootView.findViewById(R.id.tv_name_0);
-                    tv_name_0.setText("Name: " + t.getTrackName());
+                    tv_name_0.setText(t.getTrackName());
 
                     tv_startdate_0 = (TextView) rootView.findViewById(R.id.tv_startdate_0);
                     tv_startdate_0.setText(t.getStartDate());
@@ -507,7 +507,7 @@ public class DetailsActivity extends AppCompatActivity {
 
 
                     tv_name_1 = (TextView) rootView.findViewById(R.id.tv_name_1);
-                    tv_name_1.setText("Name: " + t.getTrackName());
+                    tv_name_1.setText(t.getTrackName());
 
                     tv_startdate_1 = (TextView) rootView.findViewById(R.id.tv_startdate_1);
                     tv_startdate_1.setText(t.getStartDate());
