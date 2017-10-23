@@ -44,6 +44,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.view.Display;
 import android.view.Menu;
@@ -1724,7 +1726,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             // registra sul DB se se siamo in REC ma non in PAUSE
             if (isRecording && !gbl.isPaused()) {
 
-
                 showNotification();
 
                 // ritengo valida la misura se lo spostamento è superiore alla soglia prefissata
@@ -2172,6 +2173,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                             tv_img_play_pause_rec.setText(R.string.fa_pause_circle_o);
                             FontManager.markAsIconContainer(tv_img_play_pause_rec, iconFont,gbl.DLG_BTN_SIZE,Color.YELLOW);
 
+                            showNotification();
+
                         }
                     }
                 }
@@ -2190,15 +2193,40 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         myBuilder.setCancelable(true);
         final AlertDialog dlg = myBuilder.create();
-
-        String defaultext = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date());
-        // Costruisco Edittext x il nome della traccia
-        final My_EditText et_trackName = new My_EditText(MainActivity.this,defaultext, myInpuType.ALPHANUMERIC.stringValue, 20, dlg);
-
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT);
+       String defaultext = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new Date());
+       LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT);
+        final EA_EditText et_trackName = new EA_EditText(this);
+        TextInputLayout til_trackName  = new TextInputLayout(this);
+        MyTextWatcher tw_fe_editText = new MyTextWatcher(et_trackName,til_trackName, getApplicationContext());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            et_trackName.setId(View.generateViewId());
+            til_trackName.setId(View.generateViewId());
+        }
         et_trackName.setLayoutParams(lp);
+        til_trackName.setLayoutParams(lp);
+        dlg.setView(et_trackName);
+        dlg.setView(til_trackName);
+        et_trackName.addTextChangedListener(tw_fe_editText);
+        et_trackName.setText(defaultext);
+
+        InputFilter filter = new InputFilter() {
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                for (int i = start; i < end; i++) {
+                    if(!Character.isSpaceChar(source.charAt(i))) {
+                        if (!Character.isLetterOrDigit(source.charAt(i))) {
+                            return "";
+                        }
+                    }
+                }
+                return null;
+            }
+        };
+
+        et_trackName.setFilters(new InputFilter[]{filter});
+        et_trackName.setHint("Track name");
+        til_trackName.addView(et_trackName);
+
         dlg.setTitle("Save Track");
-        dlg.setView(et_trackName); // Aggiungo editetext al Dialogo
         dlg.setMessage("Insert track name:");
         dlg.setButton(DialogInterface.BUTTON_NEUTRAL, "DISCARD",
                 new DialogInterface.OnClickListener()
@@ -2227,8 +2255,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         dlg.setButton(DialogInterface.BUTTON_NEGATIVE, "CANCEL", new DialogInterface.OnClickListener(){   @Override public void onClick(DialogInterface dialog, int id){} });
 
-        dlg.setButton(DialogInterface.BUTTON_POSITIVE,
-                "SAVE", new DialogInterface.OnClickListener() {
+        dlg.setButton(DialogInterface.BUTTON_POSITIVE, "SAVE", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         try{
@@ -2247,9 +2274,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                 tv.setText(R.string.fa_play_circle_o);
                                 FontManager.markAsIconContainer(tv, iconFont,100,Color.RED);
                                 resetLiveData();
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                    showNotification();
-                                }
+                                showNotification();
+
                             }
                         }
                         catch (Exception e){
@@ -2353,9 +2379,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                             map_osm.getOverlays().remove(follow_marker);
                             map_osm.getOverlays().remove(curr_position_marker);
                             //10.10.2017 END ID=4: rimozione dei marker
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                showNotification();
-                            }
+                            showNotification();
                             setTrackToFollow_OSM(gbl.getSelectTrack_osm().getTrackId(), "0");
                             img_manageFollow.setImageResource(R.mipmap.follow_green);
                             img_outOfPath.setVisibility(ImageView.INVISIBLE);
@@ -2676,9 +2700,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                             crono_wp_follow_dlg.setBase(SystemClock.elapsedRealtime());
                             start_wp_following_time = crono_wp_follow_dlg.getBase();
                             crono_wp_follow_dlg.start();
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                showNotification();
-                            }
+                            showNotification();
+
                         }
                         else {
                             if (curr_wp_index >= 0 && !is_wp_selected) {
@@ -2691,9 +2714,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                 crono_wp_follow_dlg.setBase(SystemClock.elapsedRealtime());
                                 start_wp_following_time = crono_wp_follow_dlg.getBase();
                                 crono_wp_follow_dlg.start();
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                    showNotification();
-                                }
+                                showNotification();
+
                             } else {
                                 if (is_wp_selected) {
                                     showDlg_STOP_WP_FOLLOW();
@@ -2718,11 +2740,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         try {
 
             AlertDialog.Builder myBuilder = new AlertDialog.Builder(MainActivity.this);
-
-            final My_EditText et_wp_Name = new My_EditText(MainActivity.this, myInpuType.ALPHANUMERIC.stringValue,20);
-            final My_EditText et_wp_Lat = new My_EditText(MainActivity.this, myInpuType.NUMERIC.stringValue,20);
-            final My_EditText et_wp_Lon = new My_EditText(MainActivity.this, myInpuType.NUMERIC.stringValue,20);
-            final My_EditText et_wp_Alt = new My_EditText(MainActivity.this, myInpuType.NUMERIC.stringValue,20);
 
             myBuilder.setCancelable(true);
             final AlertDialog dlg = myBuilder.create();
@@ -2750,9 +2767,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     try {
                                         isFollowing = false;
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                            showNotification();
-                                        }
+                                        showNotification();
                                         setTrackToFollow_OSM(gbl.getSelectTrack_osm().getTrackId(), "0");
                                         img_manageFollow.setImageResource(R.mipmap.follow_green);
                                         img_outOfPath.setVisibility(ImageView.INVISIBLE);
@@ -3167,6 +3182,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             try {
                 int message_id, small_icon_id;
                 ConstraintLayout main_constrLayout = (ConstraintLayout) findViewById(R.id.mainConstraintLayout);
+
                 if (isRecording) {
                     if (gbl.isPaused())
                         main_constrLayout.setBackgroundColor(Color.YELLOW);

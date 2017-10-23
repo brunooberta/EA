@@ -462,14 +462,17 @@ public class TracksListActivity extends AppCompatActivity {
 
                case "DELETE_TRACKS":
                     dlg.setTitle("Delete Track(s)");
-
                    String msg = "Do you want to delete these tracks?" + System.getProperty("line.separator");
+
+
 //TODO: capire come mai va fuori range
-                   /*
+
                    for(int pos: myLstAdaper.getPositionsSelected()){
-                       msg = msg + " - " + track_ArrayList.get(myLstAdaper.getPositionsSelected().get(pos)).getTrackName() + System.getProperty("line.separator");
+                       //gbl.myLog1("pos["+pos+"] trackName["+myLstAdaper.getItem(pos).getTrackName()+"]");
+
+                       msg = msg + " - " + myLstAdaper.getItem(pos).getTrackName() + System.getProperty("line.separator");
                    }
-*/
+
                    dlg.setMessage(msg);
 
                     dlg.setButton(DialogInterface.BUTTON_POSITIVE, "DELETE", new DialogInterface.OnClickListener() {

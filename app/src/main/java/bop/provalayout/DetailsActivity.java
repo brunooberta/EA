@@ -104,6 +104,8 @@ public class DetailsActivity extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+                        if (t_lst.size()==1)
+                            return true;
 
                         if(rotator_index==0)
                             rotator_index =1;
@@ -326,7 +328,7 @@ public class DetailsActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
 
             View rootView=null;
-            TextView textView;
+
             switch (getArguments().getInt(ARG_SECTION_NUMBER)) {
                 case 1:
                     rootView = inflater.inflate(R.layout.fragment_details_time_charts, container, false);
@@ -638,6 +640,73 @@ public class DetailsActivity extends AppCompatActivity {
         catch(Exception e){gbl.myLog( "onCreate --> ERRORE["+e.toString()+"]");}
     }
 
+    private void initializeMetricCharts(View rootView) {
+        try {
+            LineDataSet dataSet = null,dataSet_alt=null,dataSet_hd=null; // add entries to dataset
+
+            chart_hd = (LineChart) rootView.findViewById(R.id.chart_d_h);
+
+            List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>(),dataSets_alt = new ArrayList<ILineDataSet>(),dataSets_hd = new ArrayList<ILineDataSet>();
+
+            DataPoint[] arr_dp = null, arr_dp_alt = null;
+            List<Entry> entries =null,entries_alt =null,entries_hd =null;
+            float x = 0, y = 0;
+            int DISTANZA=0, ALTEZZA=1;
+
+
+            String[] retTracksName = new String[arr_itemsChecked.length];
+            retTracksName = getTracksName();
+
+            //Prendo i dati da inserire nel grafico dal DB
+            // j è l'indice che punto una delle tracce che ho selezionato nella View delle tracce salvate
+            for (int j = 0; j < arr_itemsChecked.length; j++) {
+                x = 0;
+                y = 0;
+
+                ArrayList<DataPoint[]> lst_DP_Array = new ArrayList<DataPoint[]>();
+                lst_DP_Array = getDataPoints(arr_itemsChecked[j]);
+
+                // Raccolgo i dati relativi al grafico DISTANZA / TEMPO
+                entries = new ArrayList<Entry>();
+                entries_hd = new ArrayList<Entry>();
+                entries_alt = new ArrayList<Entry>();
+
+                entries = getEntries(lst_DP_Array, DISTANZA);
+                entries_alt = getEntries(lst_DP_Array, ALTEZZA);
+
+                // Raccolgo i dati relativi al grafico ALTEZZA / DISTANZA
+                for (int i = 0; i < entries.size(); i++) {
+                    x = entries.get(i).getY();
+                    y = entries_alt.get(i).getY();
+                    entries_hd.add(new Entry(x, y));
+                }
+
+                dataSet_hd = new LineDataSet(entries_hd, retTracksName[j]);
+                dataSet_hd.setDrawCircles(false); // Disabilita gli indicatori sul grafico
+                dataSet_hd.setColor(array_color[j]);
+                dataSets_hd.add(dataSet_hd);
+            }
+
+            Description title_chart = new Description();
+            title_chart.setText("");
+
+            // Creo il grafico della ALTEZZA in funzione della DISTANZA
+            LineData lineData_hd = new LineData(dataSets_hd);
+            chart_hd.setData(lineData_hd);
+            XAxis xAxis_hd = chart_hd.getXAxis();
+            xAxis_hd.setValueFormatter(new DetailsActivity.MetricAxisValueFormatter());
+            YAxis yAxis_L_hd = chart_hd.getAxisLeft();
+            YAxis yAxis_R_hd = chart_hd.getAxisRight();
+            yAxis_L_hd.setValueFormatter(new DetailsActivity.MetricAxisValueFormatter());
+            yAxis_R_hd.setDrawLabels(false);
+            chart_hd.setMarker(new DetailsActivity.CustomMarkerView(getApplicationContext(),R.layout.fragment_details_time_charts,"ALT-DIST"));
+            chart_hd.setDescription(title_chart);
+            chart_hd.invalidate(); // refresh
+
+        }
+        catch(Exception e){gbl.myLog( "onCreate --> ERRORE["+e.toString()+"]");}
+    }
+
     private LineDataSet getLineDataSet(ArrayList<DataPoint[]> dp_lst, int index, String trackName, int colorIndex){
         float x=0,y=0;
         DataPoint[] arr_dp = null;
@@ -671,73 +740,6 @@ public class DetailsActivity extends AppCompatActivity {
         return entries;
     }
 
-    private void initializeMetricCharts(View rootView) {
-        try {
-            LineDataSet dataSet = null,dataSet_alt=null,dataSet_hd=null; // add entries to dataset
-
-            chart_hd = (LineChart) rootView.findViewById(R.id.chart_d_h);
-
-            List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>(),dataSets_alt = new ArrayList<ILineDataSet>(),dataSets_hd = new ArrayList<ILineDataSet>();
-
-            DataPoint[] arr_dp = null, arr_dp_alt = null;
-            List<Entry> entries =null,entries_alt =null,entries_hd =null;
-            float x = 0, y = 0;
-            int DISTANZA=0, ALTEZZA=1;
-
-
-            String[] retTracksName = new String[arr_itemsChecked.length];
-            retTracksName = getTracksName();
-
-            //Prendo i dati da inserire nel grafico dal DB
-            // j è l'indice che punto una delle tracce che ho selezionato nella View delle tracce salvate
-            for (int j = 0; j < arr_itemsChecked.length; j++) {
-                x = 0;
-                y = 0;
-
-                ArrayList<DataPoint[]> lst_DP_Array = new ArrayList<DataPoint[]>();
-                lst_DP_Array = getDataPoints(arr_itemsChecked[j]);
-
-                // Raccolgo i dati relativi al grafico DISTANZA / TEMPO
-                entries = new ArrayList<Entry>();
-                entries_hd = new ArrayList<Entry>();
-                entries_alt = new ArrayList<Entry>();
-
-
-                entries = getEntries(lst_DP_Array, DISTANZA);
-                entries_alt = getEntries(lst_DP_Array, ALTEZZA);
-
-                  // Raccolgo i dati relativi al grafico ALTEZZA / DISTANZA
-                for (int i = 0; i < entries.size(); i++) {
-                    x = entries.get(i).getY();
-                    y = entries_alt.get(i).getY();
-                    entries_hd.add(new Entry(x, y));
-                }
-
-                dataSet_hd = new LineDataSet(entries_hd, retTracksName[j]);
-                dataSet_hd.setDrawCircles(false); // Disabilita gli indicatori sul grafico
-                dataSet_hd.setColor(array_color[j]);
-                dataSets_hd.add(dataSet_hd);
-            }
-
-            Description title_chart = new Description();
-            title_chart.setText("");
-
-            // Creo il grafico della ALTEZZA in funzione della DISTANZA
-            LineData lineData_hd = new LineData(dataSets_hd);
-            chart_hd.setData(lineData_hd);
-            XAxis xAxis_hd = chart_hd.getXAxis();
-            xAxis_hd.setValueFormatter(new DetailsActivity.MetricAxisValueFormatter());
-            YAxis yAxis_L_hd = chart_hd.getAxisLeft();
-            YAxis yAxis_R_hd = chart_hd.getAxisRight();
-            yAxis_L_hd.setValueFormatter(new DetailsActivity.MetricAxisValueFormatter());
-            yAxis_R_hd.setDrawLabels(false);
-            chart_hd.setMarker(new DetailsActivity.CustomMarkerView(getApplicationContext(),R.layout.fragment_details_time_charts,"ALT-DIST"));
-            chart_hd.setDescription(title_chart);
-            chart_hd.invalidate(); // refresh
-
-        }
-        catch(Exception e){gbl.myLog( "onCreate --> ERRORE["+e.toString()+"]");}
-    }
 
     private String[] getTracksName() {
         try {
