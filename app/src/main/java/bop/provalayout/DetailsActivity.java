@@ -42,7 +42,6 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.jjoe64.graphview.series.DataPoint;
 
 import org.osmdroid.api.IMapController;
@@ -73,7 +72,7 @@ public class DetailsActivity extends AppCompatActivity {
     private int screen_width = 0;
     private MapView map;
     private IMapController mapController;
-    private LineChart chart_distance,  chart_hd ;
+    private LineChart chart_dt,  chart_hd, chart_ht ;
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     private ArrayList<Track_OSM> t_lst = new ArrayList();
@@ -212,8 +211,12 @@ public class DetailsActivity extends AppCompatActivity {
                 map.getOverlays().add(selTrack.lst_marker.get(progress));
                 map.invalidate();
 
-                chart_distance.highlightValue((float)selTrack.dp_distance[progress].getX(),rotator_index);
-                chart_hd.highlightValue((float)selTrack.dp_distance[progress].getY(),rotator_index);
+                if (chart_dt != null)
+                    chart_dt.highlightValue((float)selTrack.dp_distance[progress].getX(),rotator_index);
+                if (chart_ht != null)
+                    chart_ht.highlightValue((float)selTrack.dp_distance[progress].getX(),rotator_index);
+                if (chart_hd != null)
+                    chart_hd.highlightValue((float)selTrack.dp_distance[progress].getY(),rotator_index);
             }
 
             @Override
@@ -331,14 +334,18 @@ public class DetailsActivity extends AppCompatActivity {
 
             switch (getArguments().getInt(ARG_SECTION_NUMBER)) {
                 case 1:
-                    rootView = inflater.inflate(R.layout.fragment_details_time_charts, container, false);
-                    ((DetailsActivity)getActivity()).initializeTimeCharts(rootView);
+                    rootView = inflater.inflate(R.layout.fragment_details_dt_charts, container, false);
+                    ((DetailsActivity)getActivity()).initialize_dt_chart(rootView);
                     break;
                 case 2:
-                    rootView = inflater.inflate(R.layout.fragment_details_metric_charts, container, false);
-                    ((DetailsActivity)getActivity()).initializeMetricCharts(rootView);
+                    rootView = inflater.inflate(R.layout.fragment_details_ht_chart, container, false);
+                    ((DetailsActivity)getActivity()).initialize_ht_Chart(rootView);
                     break;
                 case 3:
+                    rootView = inflater.inflate(R.layout.fragment_details_hd_charts, container, false);
+                    ((DetailsActivity)getActivity()).initialize_hd_Chart(rootView);
+                    break;
+                case 4:
                     //rootView = inflater.inflate(R.layout.fragment_details, container, false);
                     rootView = inflater.inflate(R.layout.fragment_details_data, container, false);
                     ((DetailsActivity)getActivity()).initializeDetails(rootView);
@@ -368,18 +375,20 @@ public class DetailsActivity extends AppCompatActivity {
         @Override
         public int getCount() {
             // Show total pages.
-            return 3;
+            return 4;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return getString(R.string.titolo_tab_1);
+                    return getString(R.string.titolo_tab_dist_time);
                 case 1:
-                    return getString(R.string.titolo_tab_2);
+                    return getString(R.string.titolo_tab_alt_time);
                 case 2:
-                    return getString(R.string.titolo_tab_3);
+                    return getString(R.string.titolo_tab_alt_dist);
+                case 3:
+                    return getString(R.string.titolo_tab_details);
             }
             return null;
         }
@@ -549,15 +558,55 @@ public class DetailsActivity extends AppCompatActivity {
         }
     }
 
-    public void initializeTimeCharts(View rootView) {
+    public void initialize_dt_chart(View rootView) {
         try {
-            LineDataSet dataSet = null,dataSet_alt=null;// add entries to dataset
-            chart_distance = (LineChart) rootView.findViewById(R.id.chart_distance);
-            final LineChart chart_height = (LineChart) rootView.findViewById(R.id.chart_height);
-            List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>(),dataSets_alt = new ArrayList<ILineDataSet>();
+            LineDataSet dataSet = null;
+            List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
+            float x = 0, y = 0;
+            int DISTANZA = 0, ALTEZZA = 1;
+            String[] retTracksName = new String[arr_itemsChecked.length];
 
-            DataPoint[] arr_dp = null, arr_dp_alt = null;
-            List<Entry> entries =null,entries_alt =null,entries_hd =null;
+            retTracksName = getTracksName();
+
+            //Prendo i dati da inserire nel grafico dal DB
+            // j è l'indice che punto una delle tracce che ho selezionato nella View delle tracce salvate
+            for (int j = 0; j < arr_itemsChecked.length; j++) {
+
+                ArrayList<DataPoint[]> lst_DP_Array = new ArrayList<DataPoint[]>();
+                lst_DP_Array = getDataPoints(arr_itemsChecked[j]);
+
+                dataSet = getLineDataSet(lst_DP_Array, DISTANZA, retTracksName[j], j);
+                dataSets.add(dataSet);
+
+            }
+
+            Description title_chart = new Description();
+            title_chart.setText("");
+
+            // Creo il grafico della DISTANZA in funzione del TEMPO
+            LineData lineData = new LineData(dataSets);
+            chart_dt = (LineChart) rootView.findViewById(R.id.chart_dt);
+            chart_dt.setData(lineData);
+            XAxis xAxis_distance = chart_dt.getXAxis();
+            xAxis_distance.setValueFormatter(new DetailsActivity.TimeAxisValueFormatter());
+            YAxis yAxis_L_distance = chart_dt.getAxisLeft();
+            YAxis yAxis_R_distance = chart_dt.getAxisRight();
+            yAxis_R_distance.setDrawLabels(false);
+            yAxis_L_distance.setValueFormatter(new DetailsActivity.MetricAxisValueFormatter());
+            chart_dt.setTouchEnabled(true);
+            chart_dt.setMarker(new DetailsActivity.CustomMarkerView(getApplicationContext(),R.layout.fragment_details_dt_charts,"DIST-TEMPO"));
+
+            chart_dt.setDescription(title_chart);
+            chart_dt.invalidate(); // refresh
+
+        }
+        catch(Exception e){gbl.myLog( "initialize_dt_chart --> ERRORE["+e.toString()+"]");}
+    }
+
+    public void initialize_ht_Chart(View rootView) {
+        try {
+            LineDataSet dataSet_alt=null;// add entries to dataset
+            List<ILineDataSet> dataSets_alt = new ArrayList<ILineDataSet>();
             float x = 0, y = 0;
             int DISTANZA = 0, ALTEZZA = 1;
 
@@ -570,10 +619,7 @@ public class DetailsActivity extends AppCompatActivity {
 
                 ArrayList<DataPoint[]> lst_DP_Array = new ArrayList<DataPoint[]>();
                 lst_DP_Array = getDataPoints(arr_itemsChecked[j]);
-
-                dataSet = getLineDataSet(lst_DP_Array, DISTANZA, retTracksName[j], j);
                 dataSet_alt = getLineDataSet(lst_DP_Array, ALTEZZA, retTracksName[j], j);
-                dataSets.add(dataSet);
                 dataSets_alt.add(dataSet_alt);
 
             }
@@ -582,69 +628,29 @@ public class DetailsActivity extends AppCompatActivity {
             title_chart.setText("");
 
             // Creo il grafico della DISTANZA in funzione del TEMPO
-            LineData lineData = new LineData(dataSets);
-            chart_distance.setData(lineData);
-
-            XAxis xAxis_distance = chart_distance.getXAxis();
+            LineData lineData = new LineData(dataSets_alt);
+            chart_ht = (LineChart) rootView.findViewById(R.id.chart_ht);
+            chart_ht.setData(lineData);
+            XAxis xAxis_distance = chart_ht.getXAxis();
             xAxis_distance.setValueFormatter(new DetailsActivity.TimeAxisValueFormatter());
-            YAxis yAxis_L_distance = chart_distance.getAxisLeft();
-            YAxis yAxis_R_distance = chart_distance.getAxisRight();
+            YAxis yAxis_L_distance = chart_ht.getAxisLeft();
+            YAxis yAxis_R_distance = chart_ht.getAxisRight();
             yAxis_R_distance.setDrawLabels(false);
             yAxis_L_distance.setValueFormatter(new DetailsActivity.MetricAxisValueFormatter());
-            chart_distance.setTouchEnabled(true);
-            chart_distance.setMarker(new DetailsActivity.CustomMarkerView(getApplicationContext(),R.layout.fragment_details_time_charts,"DIST-TEMPO"));
-
-            chart_distance.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-                @Override
-                public void onValueSelected(Entry e, Highlight h) {
-                    try {
-                        chart_height.highlightValue(e.getX(), h.getDataSetIndex(), false);
-                    }
-                    catch(Exception ex){gbl.myLog("onValueSelected -> ERRORE["+ex.toString()+"]");}
-                }
-                @Override
-                public void onNothingSelected() {
-
-                }
-            });
-            chart_distance.setDescription(title_chart);
-            chart_distance.invalidate(); // refresh
-
-            // Creo il grafico della ALTEZZA in funzione del TEMPO
-            LineData lineData_alt = new LineData(dataSets_alt);
-            chart_height.setData(lineData_alt);
-
-            XAxis xAxis_height = chart_height.getXAxis();
-            xAxis_height.setValueFormatter(new DetailsActivity.TimeAxisValueFormatter());
-            YAxis yAxis_L_height = chart_height.getAxisLeft();
-            YAxis yAxis_R_height = chart_height.getAxisRight();
-            yAxis_L_height.setValueFormatter(new DetailsActivity.MetricAxisValueFormatter());
-            yAxis_R_height.setDrawLabels(false);
-            chart_height.setMarker(new DetailsActivity.CustomMarkerView(getApplicationContext(),R.layout.fragment_details_time_charts,"ALT-TEMPO"));
-            chart_height.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-                @Override
-                public void onValueSelected(Entry e, Highlight h) {
-                    try {
-                        chart_distance.highlightValue(e.getX(), h.getDataSetIndex(), false);
-                    } catch (Exception ex) {gbl.myLog( "onValueSelected -> ERRORE[" + ex.toString() + "]");}
-                }
-                @Override
-                public void onNothingSelected() {
-
-                }
-            });
-            chart_height.setDescription(title_chart);
-            chart_height.invalidate(); // refresh
+            chart_ht.setTouchEnabled(true);
+            chart_ht.setMarker(new DetailsActivity.CustomMarkerView(getApplicationContext(),R.layout.fragment_details_dt_charts,"DIST-TEMPO"));
+            chart_ht.setDescription(title_chart);
+            chart_ht.invalidate(); // refresh
 
         }
-        catch(Exception e){gbl.myLog( "onCreate --> ERRORE["+e.toString()+"]");}
+        catch(Exception e){gbl.myLog( "initialize_ht_Chart --> ERRORE["+e.toString()+"]");}
     }
 
-    private void initializeMetricCharts(View rootView) {
+    private void initialize_hd_Chart(View rootView) {
         try {
-            LineDataSet dataSet = null,dataSet_alt=null,dataSet_hd=null; // add entries to dataset
+            LineDataSet dataSet_hd=null; // add entries to dataset
 
-            chart_hd = (LineChart) rootView.findViewById(R.id.chart_d_h);
+
 
             List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>(),dataSets_alt = new ArrayList<ILineDataSet>(),dataSets_hd = new ArrayList<ILineDataSet>();
 
@@ -652,7 +658,6 @@ public class DetailsActivity extends AppCompatActivity {
             List<Entry> entries =null,entries_alt =null,entries_hd =null;
             float x = 0, y = 0;
             int DISTANZA=0, ALTEZZA=1;
-
 
             String[] retTracksName = new String[arr_itemsChecked.length];
             retTracksName = getTracksName();
@@ -692,6 +697,7 @@ public class DetailsActivity extends AppCompatActivity {
 
             // Creo il grafico della ALTEZZA in funzione della DISTANZA
             LineData lineData_hd = new LineData(dataSets_hd);
+            chart_hd = (LineChart) rootView.findViewById(R.id.chart_hd);
             chart_hd.setData(lineData_hd);
             XAxis xAxis_hd = chart_hd.getXAxis();
             xAxis_hd.setValueFormatter(new DetailsActivity.MetricAxisValueFormatter());
@@ -699,7 +705,7 @@ public class DetailsActivity extends AppCompatActivity {
             YAxis yAxis_R_hd = chart_hd.getAxisRight();
             yAxis_L_hd.setValueFormatter(new DetailsActivity.MetricAxisValueFormatter());
             yAxis_R_hd.setDrawLabels(false);
-            chart_hd.setMarker(new DetailsActivity.CustomMarkerView(getApplicationContext(),R.layout.fragment_details_time_charts,"ALT-DIST"));
+            chart_hd.setMarker(new DetailsActivity.CustomMarkerView(getApplicationContext(),R.layout.fragment_details_dt_charts,"ALT-DIST"));
             chart_hd.setDescription(title_chart);
             chart_hd.invalidate(); // refresh
 

@@ -68,18 +68,10 @@
             android:scrollbars="vertical"
             android:layout_weight="1">
 
-            <TextView
-                android:id="@+id/tv_titolo_hd"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:text="@string/titolo_alt_dist"
-                android:textAppearance="@style/TextAppearance.AppCompat.Button" />
-<!--android:background="@color/common_google_signin_btn_text_dark_disabled"-->
             <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/chart_d_h"
+                android:id="@+id/chart_hd"
                 android:layout_width="match_parent"
-                android:layout_height="227dp"
+                android:layout_height="match_parent"
                 android:layout_marginEnd="11dp"
                 android:layout_marginLeft="11dp"
                 android:layout_marginRight="11dp"
@@ -91,7 +83,7 @@
                 app:layout_constraintDimensionRatio="h,1:1"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/chart_height"
+                app:layout_constraintTop_toBottomOf="@+id/chart_dt"
                 tools:layout_constraintLeft_creator="1"
                 tools:layout_constraintRight_creator="1" />
 
