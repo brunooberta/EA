@@ -284,7 +284,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             EA_Logger.close();
 
-            gbl.myLog(" onDestroy ");
             ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mApiClient,pendingIntent);
 
             super.onDestroy();
@@ -308,6 +307,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
 
         try {
+
             setContentView(R.layout.activity_main);
 
             Intent intent = new Intent( this, ActivityRecognizedService.class );
@@ -324,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             if(!isJustCreated){
                 gbl.setIsSelectMode_ON(gbl.pref_def_select_track_mode);
                 gbl.setIsCentertMode_ON(gbl.pref_def_auto_center_mode);
+                gbl.setPref_following_sound_out_of_path(gbl.pref_following_sound_out_of_path);
             }
             settingValues();
 
@@ -1491,7 +1492,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     showFollowMarker(POS_ATTUALE, POS_FOLLOWING, getString(R.string.current_location), snippet);
 
                 // ogni TOT secondi verifica se è il caso di cambiare la direzione della freccia...
-                if(isTimeToShowDirection(gbl.pref_gps_minum_time_for_direction)) {
+                if(isTimeToShowDirection(gbl.pref_gps_minum_time_for_direction) && isMoving) {
                      addMarkerForMarchDirection();
                 }
 
@@ -1826,7 +1827,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     long isTimeToRing = System.currentTimeMillis() - startTime_for_ringTimer; // calcolo il tempo da quando sono uscito dal sentiero
                     img_outOfPath.setVisibility(ImageView.VISIBLE);
 
-                    if (gbl.pref_following_sound_out_of_path && !isAcusticAlarmSuppressed) {
+                   if (gbl.pref_following_sound_out_of_path && !isAcusticAlarmSuppressed) {
                         img_bell.setVisibility(ImageView.VISIBLE);
                         if (isTimeToRing >= gbl.pref_following_default_interval_ring) {
                             ringtone();
@@ -1978,6 +1979,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     double d = p.distanceTo(convert_LatLng_to_GeoPoint(pos));
                     if (d < min_d) {
                         min_d = d;
+
                         POS_FOLLOWING = convert_GeoPoint_to_LatLng(p);
                     }
                 }

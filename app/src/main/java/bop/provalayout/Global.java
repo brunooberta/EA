@@ -64,26 +64,54 @@ public class Global {
     }
 
     public void refresh_Pref_default_zoom(Context context) {
-        Global.pref_default_zoom = getPreferenceValue_int(R.string.pref_def_key_zoom, context);;
+        Global.pref_default_zoom = getPreferenceValue_int(R.string.pref_def_key_zoom, context);
+    }
+
+    public static void setPref_following_sound_out_of_path(boolean pref_following_sound_out_of_path) {
+        Global.pref_following_sound_out_of_path = pref_following_sound_out_of_path;
     }
 
     public void setPreferences(Context context){
-        pref_map_offline = getPreferenceValue_String(R.string.pref_offlinemap_key,context);
-        pref_map_is_offline = getPreferenceValue_bool(R.string.pref_offlinemap_switch_key,context);
-        pref_gps_minum_time = getPreferenceValue_int(R.string.pref_gps_key_minum_time,context);
-        pref_following_default_interval_ring = getPreferenceValue_int(R.string.pref_following_key_default_interval_ring,context) * 1000;
-        pref_following_sound_out_of_path = getPreferenceValue_bool(R.string.pref_following_key_sound_out_of_path,context);
-        pref_following_minum_distance = getPreferenceValue_int(R.string.pref_following_key_minum_distance,context);
-        pref_gps_geoid_correction = getPreferenceValue_int(R.string.pref_gps_key_geoid_correction,context);
-        pref_gps_minum_distance = getPreferenceValue_int(R.string.pref_gps_key_minum_distance,context);
-        pref_gps_minum_time_for_direction = getPreferenceValue_int(R.string.pref_gps_key_minum_time_for_direction,context) * 1000;
-        pref_map_offline = getPreferenceValue_String(R.string.pref_offlinemap_key,context);
-        pref_map_is_offline = getPreferenceValue_bool(R.string.pref_offlinemap_switch_key,context);
-        pref_map_offline_zoom_max = getPreferenceValue_int(R.string.pref_offlinemap_zoom_max_key,context);
-        pref_map_offline_zoom_min=  getPreferenceValue_int(R.string.pref_offlinemap_zoom_min_key,context);
-        pref_def_select_track_mode= getPreferenceValue_bool(R.string.pref_def_key_select_track_mode,context);
-        pref_def_auto_center_mode= getPreferenceValue_bool(R.string.pref_def_key_auto_center_mode,context);
-        pref_default_zoom = getPreferenceValue_int(R.string.pref_def_key_zoom, context);
+        /*  ATTENZIONE!!!
+            Le preference sono attive e valorizzate solo dopo il primo accesso alla activity SettingsActivity
+            fino a quando non lo faccio le varie getPreferenceValue_* ritorneranno il valore di DEFAULT.
+            Al fine di valorizzarle significativamente testo la preference che restituisce una stringa
+            se è = ""  --> non sono ancora entrato in SettingsActivity --> Uso default
+            se è != "" --> sono già entrato in SettingsActivity --> Uso le preference
+         */
+        if((getPreferenceValue_String(R.string.pref_def_key_zoom, context)).length() > 0) {
+            /*PREFERENCE*/
+            pref_default_zoom = getPreferenceValue_int(R.string.pref_def_key_zoom, context);
+            pref_map_offline = getPreferenceValue_String(R.string.pref_offlinemap_key, context);
+            pref_map_is_offline = getPreferenceValue_bool(R.string.pref_offlinemap_switch_key, context);
+            pref_gps_minum_time = getPreferenceValue_int(R.string.pref_gps_key_minum_time, context);
+            pref_following_default_interval_ring = getPreferenceValue_int(R.string.pref_following_key_default_interval_ring, context) * 1000;
+            pref_following_sound_out_of_path = getPreferenceValue_bool(R.string.pref_following_key_sound_out_of_path, context);
+            pref_following_minum_distance = getPreferenceValue_int(R.string.pref_following_key_minum_distance, context);
+            pref_gps_geoid_correction = getPreferenceValue_int(R.string.pref_gps_key_geoid_correction, context);
+            pref_gps_minum_distance = getPreferenceValue_int(R.string.pref_gps_key_minum_distance, context);
+            pref_gps_minum_time_for_direction = getPreferenceValue_int(R.string.pref_gps_key_minum_time_for_direction, context) * 1000;
+            pref_map_offline_zoom_max = getPreferenceValue_int(R.string.pref_offlinemap_zoom_max_key, context);
+            pref_map_offline_zoom_min = getPreferenceValue_int(R.string.pref_offlinemap_zoom_min_key, context);
+            pref_def_select_track_mode = getPreferenceValue_bool(R.string.pref_def_key_select_track_mode, context);
+            pref_def_auto_center_mode = getPreferenceValue_bool(R.string.pref_def_key_auto_center_mode, context);
+        }else{
+            /*DEFAULT*/
+            pref_map_offline = "";
+            pref_map_is_offline = false;
+            pref_gps_minum_time = 1;
+            pref_following_default_interval_ring = 1 * 1000;
+            pref_following_sound_out_of_path =true;
+            pref_following_minum_distance = 20;
+            pref_gps_geoid_correction = 0;
+            pref_gps_minum_distance = 5;
+            pref_gps_minum_time_for_direction = 1 * 1000;
+            pref_map_offline_zoom_max = 7;
+            pref_map_offline_zoom_min = 1;
+            pref_def_select_track_mode = false;
+            pref_def_auto_center_mode = true;
+        }
+
     }
 
     /**
@@ -266,11 +294,12 @@ public class Global {
 
     public int getPreferenceValue_int(int key, Context context) {
         try {
+
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-            return Integer.parseInt(pref.getString(context.getResources().getString(key), "0"));
+            return Integer.parseInt(pref.getString(context.getResources().getString(key), "-1"));
         } catch (Exception e) {
             myLog("ERRORE in getPreferenceValue key[" + context.getResources().getString(key) + "] [" + e.toString() + "]");
-            return 0;
+            return -99999;
         }
     }
 

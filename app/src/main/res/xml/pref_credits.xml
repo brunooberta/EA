@@ -6,7 +6,8 @@
         android:selectAllOnFocus="true"
         android:selectable="false"
         android:summary="@string/app_name"
-        android:title="@string/pref_credits_appname_title" />
+        android:title="@string/pref_credits_appname_title"
+        android:defaultValue="@string/app_name"/>
 
     <EditTextPreference
         android:editable="false"

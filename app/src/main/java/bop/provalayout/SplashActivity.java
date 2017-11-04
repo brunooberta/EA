@@ -54,9 +54,6 @@ public class SplashActivity extends FragmentActivity {
         if(checkAndRequestPermissions()) {
             LoginManager.getInstance().logOut();
 
-            Intent serviceIntent = new Intent(this,LocationService.class);
-            startService(serviceIntent);
-
             try {
 
                 EA_Logger.setup();
@@ -85,18 +82,25 @@ public class SplashActivity extends FragmentActivity {
             catch (Exception e) {
                 Log.w("MY_CHECK", "ERRORE in SplashActivity.onCreate [" + e.toString() + "]");
             }
-                /* New Handler to start the Menu-Activity
-         * and close this Splash-Screen after some seconds.*/
+
+            /* New Handler to start the Menu-Activity and close this Splash-Screen after some seconds.*/
             new Handler().postDelayed(new Runnable(){
                 @Override
                 public void run() {
                     try {
-                /* Create an Intent that will start the Menu-Activity. */
+                        gbl.setPreferences(SplashActivity.this);
+
+                        Intent serviceIntent = new Intent(SplashActivity.this,LocationService.class);
+                        startService(serviceIntent);
+
                         Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
 
                         mainIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                         mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP| Intent.FLAG_ACTIVITY_NEW_TASK);
                         SplashActivity.this.startActivity(mainIntent);
+
+                        finish();
+
                         overridePendingTransition(R.anim.fade_id, R.anim.fade_out);
                     }
                     catch (Exception e) {
@@ -105,9 +109,6 @@ public class SplashActivity extends FragmentActivity {
                 }
             }, SPLASH_DISPLAY_LENGTH);
         }
-
-
-
     }
 
     @Override
@@ -115,6 +116,11 @@ public class SplashActivity extends FragmentActivity {
         super.onActivityResult(requestCode, resultCode, data);
         try {
             callbackManager.onActivityResult(requestCode, resultCode, data);
+
+            gbl.setPreferences(this);
+
+            Intent serviceIntent = new Intent(SplashActivity.this,LocationService.class);
+            startService(serviceIntent);
 
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
@@ -153,9 +159,12 @@ public class SplashActivity extends FragmentActivity {
                         perms.put(permissions[i], grantResults[i]);
 
 
-                    if (perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                            perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                    if (    perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                            perms.get(Manifest.permission.ACCESS_FINE_LOCATION)   == PackageManager.PERMISSION_GRANTED &&
                             perms.get(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ){
+
+                        Intent serviceIntent = new Intent(this,LocationService.class);
+                        startService(serviceIntent);
 
                         Intent intent = new Intent(this, MainActivity.class);
                         startActivity(intent);
