@@ -657,7 +657,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                     zoomOnPoint(GP_POS_ATTUALE);
                 else if (gbl.getSelectTrack_osm() != null) {
-                    zoomTrack(gbl.getSelectTrack_osm());
+                    /*Per qualche motivo che non ho capito se nella onCreate faccio zoomBoundingBox una sola volta non funziona
+                    * Probabilmente è un problema sul mapcontroller ma non ho approfondito */
+                    zoomBoundingBox(gbl.getSelectTrack_osm());
+                    zoomBoundingBox(gbl.getSelectTrack_osm());
                     showSelectTrackLayout(true, 0);
                 } else {
                     zoomTrack(0);
@@ -1288,7 +1291,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void zoomOnPoint(GeoPoint gp){
-
+gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
         mapController.setZoom(gbl.pref_default_zoom);
         mapController.setCenter(gp);
     }
@@ -1497,6 +1500,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
 
             }
+            // Se non mi sto muovendo elimino il marker
+            if (!isMoving)
+                map_osm.getOverlays().remove(direction_marker);
+
         } catch (Exception e) {
             gbl.myLog( "ERRORE in setCurrentPositionOnMap_OSM [" + e.toString() + "]");
         }
@@ -1877,8 +1884,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
      */
     private void motionDetect(){
         try {
-            if (!isMoving) {
+            if (!isMoving || !isRecording) {
                 int activityType = gbl.getActivity().getType();
+
                 switch (activityType) {
                     case DetectedActivity.IN_VEHICLE:
                     case DetectedActivity.ON_BICYCLE:
@@ -1893,7 +1901,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         break;
                 }
             }
-            //gbl.myLog1("isMoving ["+isMoving+"]");
+
         }catch (Exception e) {
             gbl.myLog("ERRORE in motionDetect ["+e.toString()+"]");
         }
@@ -3004,6 +3012,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
+    /*Colora la traccia selezionata in BLU e posiziona il cursore della seekbar*/
     private void showSelectTrackLayout(boolean isVisible, int nearestPoint_index){
         final LinearLayout container = (LinearLayout)findViewById(R.id.layout_sel_track);
 

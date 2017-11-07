@@ -171,7 +171,6 @@ public class track_ListAdapter extends BaseAdapter {
             mItemsIdCheckedArray.add(index);
             lastTrackIdSelected = mTracksArray.get(index).getTrackId();
             lastTrackSelected = mTracksArray.get(index);
-
             mSelectedTrackIdArray.add(lastTrackIdSelected);
 
             return true;

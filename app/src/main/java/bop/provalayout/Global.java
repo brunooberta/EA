@@ -64,7 +64,11 @@ public class Global {
     }
 
     public void refresh_Pref_default_zoom(Context context) {
-        Global.pref_default_zoom = getPreferenceValue_int(R.string.pref_def_key_zoom, context);
+        int zoom = getPreferenceValue_int(R.string.pref_def_key_zoom, context);
+        if (zoom > 0)
+            Global.pref_default_zoom = getPreferenceValue_int(R.string.pref_def_key_zoom, context);
+        else
+            Global.pref_default_zoom = 7;
     }
 
     public static void setPref_following_sound_out_of_path(boolean pref_following_sound_out_of_path) {
@@ -106,6 +110,7 @@ public class Global {
             pref_gps_geoid_correction = 0;
             pref_gps_minum_distance = 5;
             pref_gps_minum_time_for_direction = 1 * 1000;
+            pref_default_zoom = 7;
             pref_map_offline_zoom_max = 7;
             pref_map_offline_zoom_min = 1;
             pref_def_select_track_mode = false;

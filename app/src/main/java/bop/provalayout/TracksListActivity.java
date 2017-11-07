@@ -49,7 +49,7 @@ public class TracksListActivity extends AppCompatActivity {
     private List<org.osmdroid.views.overlay.Polyline> lst_polyline;
     private track_ListAdapter myLstAdaper;
     private GPSDatabase myDatabase;
-    private IMapController mapController;
+    private IMapController mapContr;
     private Global gbl = new Global();
     private String[] arr_trackId = new String[]{};
     private String selected_date="";
@@ -107,9 +107,9 @@ public class TracksListActivity extends AppCompatActivity {
             });
 
             GeoPoint startPoint = new GeoPoint(45.208456, 7.137358);
-            mapController = map_osm_tl.getController();
-            mapController.setZoom(10);
-            mapController.setCenter(startPoint);
+            mapContr = map_osm_tl.getController();
+            mapContr.setZoom(10);
+            mapContr.setCenter(startPoint);
 
             Toolbar toolbar = (Toolbar) findViewById(R.id.tb_activy_tracklist);
             setSupportActionBar(toolbar);
