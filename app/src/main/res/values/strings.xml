@@ -63,6 +63,9 @@
     <string name="alarm_off">"Acustic Alarm Suppressed"</string>
     <string name="str_load">Load...</string>
 
+    <!-- CalendarActivity -->
+    <string name="nothig_to_show">"Attention: No tracks to show."</string>
+
     <!-- GENERALE -->
     <string name="date_format">dd/MM/yyyy</string>
 
@@ -115,6 +118,7 @@
     <string name="cal_legenda">LEGEND</string>
     <string name="cal_cur_day_indicator">Current day indicator</string>
     <string name="cal_sel_day_indicator">Selected day indicator</string>
+    <string name="cal_sel_date_indicator">Selected interval date indicator</string>
     <string name="cal_event_indicator">Activities precence indicator</string>
 
     <!-- NOTIFICATIONS -->

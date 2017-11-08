@@ -3114,23 +3114,6 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
         return myDatabase.ins_WayPoint(id,trackId, lat, lon, alt, name, cmt, desc, sym);
     }
 
-    public enum myInpuType {
-        NUMERIC("NUMERIC", 0),
-        ALPHANUMERIC("ALPHANUMERIC", 1);
-
-        private String stringValue;
-        private int intValue;
-        private myInpuType(String toString, int value) {
-            stringValue = toString;
-            intValue = value;
-        }
-
-        @Override
-        public String toString() {
-            return stringValue.toUpperCase();
-        }
-    }
-
     private void showGPSDisabledAlertToUser(){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setMessage("GPS is disabled in your device. Would you like to enable it?")

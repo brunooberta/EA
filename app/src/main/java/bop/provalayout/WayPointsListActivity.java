@@ -30,7 +30,7 @@ public class WayPointsListActivity extends AppCompatActivity {
     private boolean isBtnPressed=false; // Utilizzato nell'onStop se chiudo l'app --> onStop --> vado su MainActivity se c'è in corso una REC
     private Global gbl = new Global();
     private String[] arr_trackId = new String[]{};
-    private String selected_date="";
+    private String date_start="", date_end="";
     private int screen_width =0;
 
     @Override
@@ -61,7 +61,9 @@ public class WayPointsListActivity extends AppCompatActivity {
                 trackId = extras.getString("trackId");
                 trackName = extras.getString("trackName");
                 arr_trackId = extras.getStringArray("arr_trackId");
-                selected_date =  extras.getString("selected_date");
+                date_start = extras.getString("date_start");
+                date_end = extras.getString("date_end");
+
             }
 
             myDatabase = new GPSDatabase(this);
@@ -175,7 +177,8 @@ public class WayPointsListActivity extends AppCompatActivity {
         try {
             Intent intent = new Intent(this, TracksListActivity.class);
             intent.putExtra("arr_trackId",arr_trackId);
-            intent.putExtra("selected_date",selected_date);
+            intent.putExtra("date_start", date_start);
+            intent.putExtra("date_end", date_end);
             startActivity(intent);
             //finish();
         } catch (Exception e) {

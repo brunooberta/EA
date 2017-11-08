@@ -70,7 +70,7 @@ public class EA_FileChooserActivity extends AppCompatActivity {
     private ArrayList<String> ext = new ArrayList<>();
     private String path = Environment.getExternalStorageDirectory().getPath();
     private String[] arr_trackId = new String[]{};
-    private String selected_date = "";
+    private String date_start="", date_end="";
     private boolean isGpx = true, ISFILE = true, ISDIR = false;
     private Global gbl = new Global();
     private String path_back = "";
@@ -104,7 +104,8 @@ public class EA_FileChooserActivity extends AppCompatActivity {
             if(extras != null) {
                 ext = extras.getStringArrayList("extension");
                 arr_trackId = extras.getStringArray("arr_trackId");
-                selected_date = extras.getString("selected_date");
+                date_start = extras.getString("date_start");
+                date_end = extras.getString("date_end");
                 isGpx = extras.getBoolean("isGpx");
             }
 
@@ -181,7 +182,8 @@ public class EA_FileChooserActivity extends AppCompatActivity {
         try {
             Intent intent = new Intent(getApplicationContext(), TracksListActivity.class);
             intent.putExtra("arr_trackId", arr_trackId);
-            intent.putExtra("selected_date", selected_date);
+            intent.putExtra("date_start", date_start);
+            intent.putExtra("date_end", date_end);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             //finish();
@@ -589,6 +591,7 @@ public class EA_FileChooserActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             try {
+                                arr_trackId = null; // serve a fare in modo di visualizzare la traccia appena importata
                                 goToTrackList();
                             } catch (Exception e) {
                                 gbl.myLog("ERRORE in onClick(IMPORT OK)[" + e.toString() + "]");

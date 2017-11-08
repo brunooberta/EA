@@ -67,7 +67,7 @@ public class DetailsActivity extends AppCompatActivity {
     private GPSDatabase myDatabase;
     private int animationLength = 2500;
     private String[] arr_trackId = new String[]{};
-    private String selected_date="";
+    private String date_start="", date_end="";
     private Global gbl = new Global();
     private int screen_width = 0;
     private MapView map;
@@ -183,7 +183,9 @@ public class DetailsActivity extends AppCompatActivity {
         if(extras != null) {
             arr_trackId = extras.getStringArray("arr_trackId");
             arr_itemsChecked = extras.getStringArray("arr_itemsChecked");
-            selected_date = extras.getString("selected_date");
+            date_start = extras.getString("date_start");
+            date_end = extras.getString("date_end");
+
         }
 
         initializeMap();
@@ -650,8 +652,6 @@ public class DetailsActivity extends AppCompatActivity {
         try {
             LineDataSet dataSet_hd=null; // add entries to dataset
 
-
-
             List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>(),dataSets_alt = new ArrayList<ILineDataSet>(),dataSets_hd = new ArrayList<ILineDataSet>();
 
             DataPoint[] arr_dp = null, arr_dp_alt = null;
@@ -745,7 +745,6 @@ public class DetailsActivity extends AppCompatActivity {
 
         return entries;
     }
-
 
     private String[] getTracksName() {
         try {
@@ -850,7 +849,8 @@ public class DetailsActivity extends AppCompatActivity {
         try {
             Intent intent = new Intent(this, TracksListActivity.class);
             intent.putExtra("arr_trackId",arr_trackId);
-            intent.putExtra("selected_date",selected_date);
+            intent.putExtra("date_start", date_start);
+            intent.putExtra("date_end", date_end);
             startActivity(intent);
             //finish();
         } catch (Exception e) {
@@ -937,7 +937,8 @@ public class DetailsActivity extends AppCompatActivity {
             intent.putExtra("trackId", t.getTrackId());
             intent.putExtra("trackName", t.getTrackName());
             intent.putExtra("arr_trackId",arr_trackId);
-            intent.putExtra("selected_date",selected_date);
+            intent.putExtra("date_start", date_start);
+            intent.putExtra("date_end", date_end);
 
             startActivity(intent);
             //finish();

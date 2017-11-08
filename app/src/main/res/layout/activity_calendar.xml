@@ -72,11 +72,68 @@
             tools:layout_editor_absoluteY="0dp" />
 
         <LinearLayout
-            android:id="@+id/lay_legend"
+            android:id="@+id/lay_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:background="@drawable/border_black"
+            android:orientation="horizontal">
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/til_cal_start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/col_background_light"
+                app:hintTextAppearance="@style/TextHint">
+
+                <EditText
+                    android:id="@+id/et_cal_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:hint="Start"
+                    android:inputType="none"
+                    android:maxLength="30"
+                    android:textAlignment="center"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/til_cal_end"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/col_background_light"
+                app:hintTextAppearance="@style/TextHint">
+
+                <EditText
+                    android:id="@+id/et_cal_end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:hint="End"
+                    android:inputType="none"
+                    android:maxLength="30"
+                    android:textAlignment="center"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </android.support.design.widget.TextInputLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lay_legend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@color/col_background_light"
             android:orientation="vertical">
 
             <TextView
@@ -102,18 +159,27 @@
                 android:id="@+id/tv_leg_event"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
+                android:paddingLeft="10dp"
                 android:text="@string/cal_event_indicator"
-                android:textColor="@color/calendar_eventindicator"
+                android:textColor="@color/calendar_track_ev_indicator"
                 android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/tv_leg_selectedday"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
+                android:paddingLeft="10dp"
                 android:text="@string/cal_sel_day_indicator"
                 android:textColor="@color/calendar_selectedday_bg"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tv_leg_selecteddate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:text="@string/cal_sel_date_indicator"
+                android:textColor="@color/calendar_date_ev_indicator"
                 android:textSize="18sp" />
 
         </LinearLayout>

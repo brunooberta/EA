@@ -4,6 +4,14 @@
 
 
     <item
+        android:id="@+id/menu_cal_go_to_tracklist"
+        android:orderInCategory="1"
+        android:title="Settings"
+        android:titleCondensed="@string/fa_list"
+        app:actionLayout="@layout/lay_menu_item"
+        app:showAsAction="always"></item>
+
+    <item
         android:id="@+id/menu_cal_item_go_to_map"
         app:actionLayout="@layout/lay_menu_item"
         android:title="Map"

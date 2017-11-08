@@ -52,7 +52,7 @@ public class TracksListActivity extends AppCompatActivity {
     private IMapController mapContr;
     private Global gbl = new Global();
     private String[] arr_trackId = new String[]{};
-    private String selected_date="";
+    private String date_start="", date_end="";
     private int screen_width =0;
     boolean showAllTracks=false;
 
@@ -131,7 +131,9 @@ public class TracksListActivity extends AppCompatActivity {
 
             if (extras != null) {
                 arr_trackId = extras.getStringArray("arr_trackId");
-                selected_date = extras.getString("selected_date");
+                date_start = extras.getString("date_start");
+                date_end = extras.getString("date_end");
+
             }
 
             if(arr_trackId==null)
@@ -140,8 +142,12 @@ public class TracksListActivity extends AppCompatActivity {
                 if(arr_trackId.length == 0) showAllTracks = true;
             }
 
-            if (!showAllTracks)
-                tv_selection_mode.setText(getString(R.string.tla_selezione_per_data) + " " + selected_date);
+            if (!showAllTracks) {
+                if(date_end.length()>0)
+                    tv_selection_mode.setText(getString(R.string.tla_selezione_per_data) + " " + date_start + " - " + date_end);
+                else
+                    tv_selection_mode.setText(getString(R.string.tla_selezione_per_data) + " " + date_start);
+            }
             else
                 tv_selection_mode.setText(getString(R.string.tla_selezione_completa));
 
@@ -240,7 +246,8 @@ public class TracksListActivity extends AppCompatActivity {
                     Intent intent = new Intent(getApplicationContext(), DetailsActivity.class);
                     intent.putExtra("arr_itemsChecked", arr_itemsChecked);
                     intent.putExtra("arr_trackId",arr_trackId);
-                    intent.putExtra("selected_date",selected_date);
+                    intent.putExtra("date_start",date_start);
+                    intent.putExtra("date_end",date_end);
                     startActivity(intent);
 
                     return true;
@@ -301,7 +308,8 @@ public class TracksListActivity extends AppCompatActivity {
                     intent.putExtra("trackId", gbl.getSelectTrack_osm().getTrackId());
                     intent.putExtra("trackName", gbl.getSelectTrack_osm().getTrackName());
                     intent.putExtra("arr_trackId", arr_trackId);
-                    intent.putExtra("selected_date", selected_date);
+                    intent.putExtra("date_start", date_start);
+                    intent.putExtra("date_end", date_end);
 
                     startActivity(intent);
                     //finish();
@@ -365,6 +373,9 @@ public class TracksListActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), EA_FileChooserActivity.class);
             intent.putStringArrayListExtra("extension", ext);
             intent.putExtra("isGpx", true);
+            intent.putExtra("arr_trackId", arr_trackId);
+            intent.putExtra("date_start", date_start);
+            intent.putExtra("date_end", date_end);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             getApplicationContext().startActivity(intent);
 

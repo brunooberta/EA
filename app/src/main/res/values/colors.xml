@@ -9,6 +9,7 @@
     <color name="colorTextNormal">@color/black</color>
     <color name="colorTransparent">@android:color/transparent</color>
 
+    <color name="col_background_light">#80e27e</color>
     <color name="col_background"> #338a3e </color>
     <color name="col_toolbar">@color/colorPrimaryDark</color>
     <color name="white">#ffffff</color>
@@ -18,7 +19,8 @@
     <color name="calendar_currentday_bg">@android:color/holo_red_light</color>
     <color name="calendar_selectedday_bg">@android:color/holo_orange_dark</color>
     <color name="calendar_multieventindicator">#ffffff</color>
-    <color name="calendar_eventindicator">@android:color/holo_blue_light</color>
+    <color name="calendar_track_ev_indicator">@android:color/holo_blue_light</color>
+    <color name="calendar_date_ev_indicator">@android:color/holo_red_dark</color>
     <color name="calendar_textcolor">@android:color/black</color>
 
 
