@@ -139,8 +139,6 @@ public class ExportToGpxFormat {
             xmlSerializer.startTag(null, "ele");
             xmlSerializer.text(cur_track_data.getString(ELE));
 
-
-
             xmlSerializer.endTag(null, "ele");
 
             xmlSerializer.startTag(null, "time");
@@ -149,7 +147,6 @@ public class ExportToGpxFormat {
             xmlSerializer.endTag(null, "time");
 
             xmlSerializer.endTag(null, "trkpt");
-
 
             cur_track_data.moveToNext();
         }

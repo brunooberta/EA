@@ -65,6 +65,9 @@
 
     <!-- CalendarActivity -->
     <string name="nothig_to_show">"Attention: No tracks to show."</string>
+    <!-- MainActivity -->
+    <string name="auto_calibrate_complete">"Auto Calibration Complete: setting has been changed."</string>
+
 
     <!-- GENERALE -->
     <string name="date_format">dd/MM/yyyy</string>
@@ -231,6 +234,10 @@
     <string name="pref_gps_key_geoid_correction">geoid_correction</string>
     <string name="pref_gps_title_geoid_correction">Elevation Geoid Correction [m]</string>
     <string name="pref_gps_summary_geoid_correction">Elevation Geoid Correction</string>
+
+    <string name="pref_gps_key_autocalibrate">autocalibrate</string>
+    <string name="pref_gps_title_autocalibrate">Auto Calibrate Altitude</string>
+    <string name="pref_gps_summary_autocalibrate">If Auto Calibrate Altitude is active the application calculates the Geoid Correction to be applied.</string>
 
     <!--  PREFERENZE FOLLOWING-->
     <string name="pref_following_key_minum_distance">following_minimum_distance</string>

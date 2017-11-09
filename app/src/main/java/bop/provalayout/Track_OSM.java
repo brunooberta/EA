@@ -119,37 +119,7 @@ public class Track_OSM {
 
         polyline = getPolyline();
         lst_waypoints_marker = getWayPointList();
-    }
 
-    public Track_OSM(String trackId, GPSDatabase db) {
-        int NAME=0,VISIBLE=1,LENGTH=2,HMAX=3,HMIN=4,DELTAHPOS=5,DELTAHNEG=6,DURING=7,START=8,END=9;
-        mTrackColor = 0;
-        mTrackId    = trackId;
-        mDatabase = db;
-        lst_marker = new ArrayList<>();
-        lst_direction_marker = new ArrayList<>();
-        lst_waypoints_marker = new ArrayList<>();
-        ArrayList<String> details = new ArrayList<String>();
-
-        details = mDatabase.getTrackDetails(mTrackId);
-
-        mName = details.get(NAME);
-        mLength= details.get(LENGTH);
-        mHmax= details.get(HMAX);
-        mHmin= details.get(HMIN);
-        mDeltaHPos= details.get(DELTAHPOS);
-        mDeltaHNeg= details.get(DELTAHNEG);
-        mDuring= details.get(DURING);
-        mStartDate= details.get(START);
-        mEndDate= details.get(END);
-
-        if ( details.get(VISIBLE).equals("1"))
-            mIsVisible = true;
-        else
-            mIsVisible = false;
-
-        polyline = getPolyline();
-        lst_waypoints_marker = getWayPointList();
     }
 
     public String getStartDate() {
@@ -335,12 +305,19 @@ public class Track_OSM {
                     icon = ResourcesCompat.getDrawable(mCtx.getResources(), wp_cursor.getInt(SYM), null);
                 }
                 catch(Exception ex){
-                   // Log.w("MY_CHECK", "Errore in icon error[" + ex.toString() + "]");
                     icon = ResourcesCompat.getDrawable(mCtx.getResources(), R.mipmap.flag_map_marker_blue, null);
                 }
 
                 m.setIcon(icon);
                 m.showInfoWindow();
+
+                m.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(Marker marker, MapView mapView) {
+                        marker.showInfoWindow();
+                        return false;
+                    }
+                });
 
                 lst_waypoints_marker.add(m);
 

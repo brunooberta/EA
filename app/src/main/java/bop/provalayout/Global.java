@@ -2,15 +2,18 @@ package bop.provalayout;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.preference.PreferenceManager;
-import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.google.android.gms.location.DetectedActivity;
 
 import org.osmdroid.tileprovider.MapTileProviderArray;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -25,16 +28,19 @@ public class Global {
     static private boolean isSelectMode_ON = true;
     static private boolean isCentertMode_ON = false;
     static private boolean isPaused = false;
+    static private boolean isJustCalibrate = false;
     static private long recordingTime = 0;
     static private MapTileProviderArray tileProviderArray = null;
     static private String appFolderPath = "";
     static private MainActivity.MyBroadcastReceiver mMyBroadcastReceiver;
     static private float mapOrientation = 0;
     static private boolean isLocked = false;
+    private  String LOG_TAG = "MY_CHECK";
 
     static private Track_OSM selectTrack_osm = null;
 
-    static public boolean pref_following_sound_out_of_path,pref_map_is_offline=false, pref_def_select_track_mode=false, pref_def_auto_center_mode=true;
+    static public boolean pref_following_sound_out_of_path,pref_map_is_offline=false, pref_def_select_track_mode=false, pref_def_auto_center_mode=true,
+            pref_gps_autocalibrate=false;
     static public int pref_following_minum_distance;
     static public int pref_gps_geoid_correction;
     static public int pref_following_default_interval_ring;
@@ -99,6 +105,7 @@ public class Global {
             pref_map_offline_zoom_min = getPreferenceValue_int(R.string.pref_offlinemap_zoom_min_key, context);
             pref_def_select_track_mode = getPreferenceValue_bool(R.string.pref_def_key_select_track_mode, context);
             pref_def_auto_center_mode = getPreferenceValue_bool(R.string.pref_def_key_auto_center_mode, context);
+            pref_gps_autocalibrate = getPreferenceValue_bool(R.string.pref_gps_key_autocalibrate, context);
         }else{
             /*DEFAULT*/
             pref_map_offline = "";
@@ -115,39 +122,18 @@ public class Global {
             pref_map_offline_zoom_min = 1;
             pref_def_select_track_mode = false;
             pref_def_auto_center_mode = true;
+            pref_gps_autocalibrate = false;
         }
 
     }
 
-    /**
-     * This method converts dp unit to equivalent pixels, depending on device density.
-     *
-     * @param dp A value in dp (density independent pixels) unit. Which we need to convert into pixels
-     * @param context Context to get resources and device specific display metrics
-     * @return A float value to represent px equivalent to dp depending on device density
-     */
-    public static float convertDpToPixel(float dp, Context context){
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        float px = dp * ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-        return px;
+     public static boolean isJustCalibrate() {
+        return isJustCalibrate;
     }
 
-    /**
-     * This method converts device specific pixels to density independent pixels.
-     *
-     * @param px A value in px (pixels) unit. Which we need to convert into db
-     * @param context Context to get resources and device specific display metrics
-     * @return A float value to represent dp equivalent to px value
-     */
-    public static float convertPixelsToDp(float px, Context context){
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        float dp = px / ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
-        return dp;
+    public static void setIsJustCalibrate(boolean isJustCalibrate) {
+        Global.isJustCalibrate = isJustCalibrate;
     }
-
-    private  String LOG_TAG = "MY_CHECK";
 
     public void myLog(String text){
 
@@ -296,7 +282,6 @@ public class Global {
         Global.isPaused = isPaused;
     }
 
-
     public int getPreferenceValue_int(int key, Context context) {
         try {
 
@@ -378,15 +363,52 @@ public class Global {
         }
     }
 
-    public String formatLength(double l ){
-        String l_out = "";
-        try{
-            l_out = String.format("%.2f", l/1000);
+   public double getAltitudeFromGoogleapis(Double longitude, Double latitude, Context ctx) throws IOException {
+        if (isInternetAvailable()) {
+            double result = Double.NaN;
+            URL url;
+            HttpURLConnection urlConnection = null;
+            String server_response;
 
-            return l_out;
-        }catch(Exception e){
-            myLog("Errore in formatLength ["+e.toString()+"]");
-            return l_out;
+            url = new URL("https://maps.googleapis.com/maps/api/elevation/xml?locations=" + String.valueOf(longitude)
+                    + "," + String.valueOf(latitude)
+                    + "&key=" + ctx.getString(R.string.google_maps_key));
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+            try {
+                int responseCode = urlConnection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream instream = urlConnection.getInputStream();
+                    int r = -1;
+                    StringBuffer respStr = new StringBuffer();
+                    while ((r = instream.read()) != -1)
+                        respStr.append((char) r);
+                    String tagOpen = "<elevation>";
+                    String tagClose = "</elevation>";
+                    if (respStr.indexOf(tagOpen) != -1) {
+                        int start = respStr.indexOf(tagOpen) + tagOpen.length();
+                        int end = respStr.indexOf(tagClose);
+                        String value = respStr.substring(start, end);
+                        result = Double.parseDouble(value);
+                    }
+                    instream.close();
+                }
+            } catch (IOException e) {
+                myLog1("Errore IOException in getAltitude [" + e.toString() + "]");
+            }
+            return result;
+        }else
+            return -1;
+    }
+
+    private boolean isInternetAvailable() {
+        try {
+            InetAddress ipAddr = InetAddress.getByName("google.com"); //You can replace it with your name
+            return !ipAddr.equals("");
+
+        } catch (Exception e) {
+            return false;
         }
+
     }
 }

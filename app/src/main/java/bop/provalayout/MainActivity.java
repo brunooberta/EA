@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
@@ -111,7 +112,8 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     MapView map_osm;
-    private static double h = 0;   //  altitudine
+    private static double h = 0,       // altidudine da GPS
+                          h_api = 0;   //  altitudine da GOOGLE API
     private static LatLng POS_ATTUALE = new LatLng(0.0, 0.0);
     private LatLng POS_FOLLOWING = new LatLng(0.0, 0.0);
     private static GeoPoint GP_POS_ATTUALE = new GeoPoint(0.0,0.0), GP_POS_FOLLOWING = new GeoPoint(0.0,0.0);
@@ -119,6 +121,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private static LatLng POS_PRECEDENTE= new LatLng(0.0,0.0);
     private static GeoPoint last_gp_saved_on_db = new GeoPoint(0.0,0.0);
     private static double h_precedente_saved = 0;
+    private static double geoid_correction = 0;
+
     static private boolean isRecording = false; // = true se si è in fase di registrazione (non in pausa)
     static private Chronometer  crono_rec_dlg, // Utilizzato nel dialogo di registrazione principale per misurare la durata della registrazione
                                 crono_track_follow_dlg, // Utilizzato nel dialogo di inseguimento traccia
@@ -130,7 +134,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private static boolean  isJustCreated = false, // Inizialmente è FALSE alla prima esecuzione di OnCreate diventa TRUE
                             isJustStarted=false;   // Inizialmente è FALSE alla prima esecuzione di OmStart diventa TRUE
     private static boolean isFollowing = false;
-    private static boolean drawisFollowing = false;
     private static String altitude = "?";
     private static long stop_timer=0,
                         showLocation_timer = 0,
@@ -642,10 +645,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             });
 
-            if(gbl.getTrackOsmCollection()==null){
-
+            if(gbl.getTrackOsmCollection()==null)
                 gbl.setTrackOsmCollection( new Track_OSM_Collection(myDatabase,map_osm,getApplicationContext()));
-            }
+
 
             drawAllTracks_OSM();
 
@@ -674,9 +676,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             seekBar_map.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    map_osm.getOverlays().removeAll(gbl.getSelectTrack_osm().lst_marker);
-                    map_osm.getOverlays().add(gbl.getSelectTrack_osm().lst_marker.get(progress));
-                    gbl.getSelectTrack_osm().lst_marker.get(progress).showInfoWindow();
+                    ArrayList<org.osmdroid.views.overlay.Marker> lst = gbl.getSelectTrack_osm().lst_marker;
+                    org.osmdroid.views.overlay.Marker m = lst.get(progress);
+
+                    map_osm.getOverlays().removeAll(lst);
+                    map_osm.getOverlays().add(m);
+
+                    m.showInfoWindow();
                     map_osm.invalidate();
                 }
 
@@ -890,6 +896,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 wp_list.get(curr_wp_index).showInfoWindow();
 
                 current_marker_wp =  wp_list.get(curr_wp_index);
+                current_marker_wp.showInfoWindow();
 
                 mapController.setCenter(current_marker_wp.getPosition());
             }
@@ -937,6 +944,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     public boolean onMarkerClick(org.osmdroid.views.overlay.Marker marker, MapView mapView) {
                        selected_marker_wp = current_marker_wp;
                         selected_marker_wp.showInfoWindow();
+                        marker.showInfoWindow();
+                        gbl.myLog1("addMarkerOnMap --> onMarkerClick ["+ marker.getSnippet() +"]");
                         return false;
                     }
                 });
@@ -1061,8 +1070,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         if (near_marker != null ) {
                             map_osm.getOverlays().add(near_marker);
                             near_marker.showInfoWindow();
-                            //map_osm.invalidate();
-
                             showSelectTrackLayout(true, closestMarker_index, near_marker.getPosition());
                         } else {
                             // Se sto seguendo una traccia non devo eliminare la selezione della traccia
@@ -1218,14 +1225,20 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             map_osm.getOverlays().add(track_osm.startMarker);
             map_osm.getOverlays().add(track_osm.endMarker);
             map_osm.getOverlays().addAll(track_osm.lst_waypoints_marker);
+            map_osm.invalidate();
 
             for(final org.osmdroid.views.overlay.Marker m:track_osm.lst_waypoints_marker){
 
                 m.setOnMarkerClickListener(new org.osmdroid.views.overlay.Marker.OnMarkerClickListener() {
                     @Override
                     public boolean onMarkerClick(org.osmdroid.views.overlay.Marker marker, MapView mapView) {
+
                         selected_marker_wp = m;
                         selected_marker_wp.showInfoWindow();
+                        marker.showInfoWindow();
+
+                        gbl.myLog1("drawTrackOnMap_OSM --> onMarkerClick ["+ m.getSnippet() +"]");
+
                         return false;
                     }
                 });
@@ -1237,43 +1250,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
-    //Consente di disegnare la traccia sulla mappa OSM
-    private Track_OSM drawTrackOnMap_OSM(String trackId, int trackColor) {
-        Track_OSM track_osm = new Track_OSM(map_osm,trackId, myDatabase, getBaseContext() );
-        try {
-
-            org.osmdroid.views.overlay.Polyline polyLine = track_osm.polyline;
-            polyLine.setColor(Color.BLACK);
-
-            lst_polyline.add(polyLine);
-            lst_polyline.add(polyLine);
-            map_osm.getOverlays().add(polyLine);
-            map_osm.getOverlays().add(track_osm.startMarker);
-            map_osm.getOverlays().add(track_osm.endMarker);
-            map_osm.getOverlays().addAll(track_osm.lst_waypoints_marker);
-
-            for(final org.osmdroid.views.overlay.Marker m:track_osm.lst_waypoints_marker){
-
-                m.setOnMarkerClickListener(new org.osmdroid.views.overlay.Marker.OnMarkerClickListener() {
-                    @Override
-                    public boolean onMarkerClick(org.osmdroid.views.overlay.Marker marker, MapView mapView) {
-                        selected_marker_wp = m;
-                        selected_marker_wp.showInfoWindow();
-                        return false;
-                    }
-                });
-            }
-
-            return track_osm;
-
-        } catch (Exception e) {
-            gbl.myLog( "ERRORE in drawTrackOnMap_OSM [" + e.toString() + "]");
-            return track_osm;
-
-        }
-    }
-
-    private void zoomBoundingBox(Track_OSM t){
+   private void zoomBoundingBox(Track_OSM t){
         if (t!=null) {
             BoundingBox b = t.boundingBox;
             mapController.setCenter(b.getCenter());
@@ -1291,7 +1268,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void zoomOnPoint(GeoPoint gp){
-gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
         mapController.setZoom(gbl.pref_default_zoom);
         mapController.setCenter(gp);
     }
@@ -1358,6 +1334,8 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
             get_track_data();
             int trackId = myDatabase.ins_TrackSaved_Rows(trackName, trackLength, h_max, h_min, deltaH_pos, deltaH_neg, during);
             myDatabase.del_Location_AllRows();
+
+            //myDatabase.get_altitudeApi("");
 
             gbl.getTrackOsmCollection().addTrackToCollection(""+trackId);
 
@@ -1594,7 +1572,7 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
             1. h > 0
             2. Assumo che andando a piedi non sia possibile procedere con un dislivello > 5m al secondo (che è la mia unità di campinamento della posizione)-->
                --> dico che se in un secondo il dislivello percorso è > 5m --> la misura è errata.
-    */
+        */
         boolean ret=true;
 
         //gbl.myLog("isCorrectAltitude --> h["+h+"] H_PRECEDENTE["+H_PRECEDENTE+"] DELTA["+Math.abs(h - H_PRECEDENTE)+"]");
@@ -1603,8 +1581,9 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
             // Se è da almeno delta_T che non aggiorno l'altitudine forzo l'aggiornamento
             if (isTimeToRefreshAltitude(delta_T)) {
                 ret = true;
-            }else if(Math.abs(h - gbl.H_PRECEDENTE) > 5 && gbl.H_PRECEDENTE!=0){
-                ret = false;
+            }else
+                if(Math.abs(h - gbl.H_PRECEDENTE) > 5 && gbl.H_PRECEDENTE!=0) {
+                    ret = false;
             }
         }
         else
@@ -1614,6 +1593,8 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
     }
 
     // Popola la lista di valori che concorrono a calcolare l'altezza media
+    // Se la dimensione del buffer circolare è < 20 --> non sono in grado di dare un valore valido per la media --> torno FALSE
+    // Se la dimensione del buffer circolare è > 20 --> sono in grado di calcolare la media --> torno TRUE
     private boolean populate_array_of_h(double h) {
         int DIM = 60,       // dimensione del BUFFER circolare
             MIN_DIM = 20;   // dimensione del buffer cirdcolare oltre la quale inizio a calcolare la media
@@ -1637,33 +1618,54 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
         else
             retValue = false;
 
-        //gbl.myLog("populate_array_of_h --> index_h["+index_h+"] h["+h+"] lst_h.size()["+lst_h.size()+"] retValue=["+retValue+"]");
-
         return retValue;
 
     }
 
     // Procedura che gestisce il calcolo dell'altitudine in base ad un buffer circolare di 60 posizioni
     private int altitudeManager(double h){
-
-        if(!populate_array_of_h(h)) {
-            //gbl.myLog("altitudeManager --> populate_array_of_h --> h = 0");
-            return (int)gbl.H_PRECEDENTE;
-        }
-        //double h_avg = sum_h/lst_h.size();
-        double h_avg = gbl.getAverage(lst_h);
-        h_avg = h_avg + gbl.pref_gps_geoid_correction;
-
         int ret_h = 0;
-        if(isCorrectAltitude(h_avg)) {
-            ret_h = (int) h_avg;
-        }else
-            ret_h = (int) gbl.H_PRECEDENTE;
 
-        //gbl.myLog("altitudeManager --> isCorrectAltitude --> ret_h["+ret_h+"]");
+        // Se le preference mi dicono che è attiva la autocalibrazione utilizzo h_api
+        // se non c'è connessione internet: h_api < 0
+        // Se h_api < 0 --> passo al calcolo classico
+        if(gbl.pref_gps_autocalibrate && h_api>0) {
+            boolean isPopulated = populate_array_of_h(h); // popolo il buffer circolare con i valori GPS in modo che se devo passare offline la correzione geodetica funzini correttamente
+            ret_h = (int) h_api;
+
+            if(isPopulated) {
+                // Effettuo la auto calibrazione sovrascrivendo le impostazioni nei setting
+                double h_avg = gbl.getAverage(lst_h);
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString(getResources().getString(R.string.pref_gps_key_geoid_correction), "" + (int)(h_api - h_avg));
+                editor.commit();
+                // Dopo la prima calibrazione avviso l'utente.
+                if(!gbl.isJustCalibrate()) {
+                    Toast.makeText(getApplicationContext(),R.string.auto_calibrate_complete,Toast.LENGTH_LONG).show();
+                }
+                gbl.setIsJustCalibrate(true);
+            }
+
+
+
+        } else {
+            if (!populate_array_of_h(h)) {
+                return (int) gbl.H_PRECEDENTE;
+            }
+
+            double h_avg = gbl.getAverage(lst_h);
+            h_avg = h_avg + gbl.pref_gps_geoid_correction;
+
+            if (isCorrectAltitude(h_avg)) {
+                ret_h = (int) h_avg;
+            } else
+                ret_h = (int) gbl.H_PRECEDENTE;
+
+        }
+        //gbl.myLog1("gbl.pref_gps_autocalibrate["+gbl.pref_gps_autocalibrate+"] h_api["+h_api+"] ret_h["+ret_h+"]");
 
         return ret_h;
-
 
     }
 
@@ -1673,9 +1675,11 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
             POS_ATTUALE = new LatLng(location.getLatitude(), location.getLongitude());
             GP_POS_ATTUALE = new GeoPoint(location.getLatitude(), location.getLongitude());
 
+            h_api =  gbl.getAltitudeFromGoogleapis(location.getLatitude(), location.getLongitude(), getApplicationContext());
+
             h = altitudeManager(location.getAltitude());
+
             int delta_d_absolute = GP_POS_ATTUALE.distanceTo(GP_POS_PRECEDENTE);
-            int delta_d_saved = GP_POS_ATTUALE.distanceTo(last_gp_saved_on_db);
 
             altitude = "" + (int)h;
 
@@ -1716,10 +1720,10 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
                     if (dlg_rec != null) {
                         TextView tv_img_play_pause_rec = (TextView) dlg_rec.findViewById(R.id.tv_img_play_pause_rec);
                         TextView tv_img_padlock = (TextView) dlg_rec.findViewById(R.id.tv_img_padlock);
-
                         tv_img_play_pause_rec.setText(R.string.fa_play_circle_o);
                         FontManager.markAsIconContainer(tv_img_play_pause_rec, iconFont, gbl.DLG_BTN_SIZE, Color.RED);
                         btn_rec.setImageResource(R.drawable.rec_stop);
+                        gbl.myLog1("ins_location_DB 2");
                         ins_location_DB(); // questo è l'ultimo punto tracciato
                         SaveTrackOnDB("RECORDED_TRACK");
                         int trackIndex = drawAllTracks_OSM();
@@ -1759,7 +1763,6 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
                    In effetti così facendo ho un effetto collaterale: quando faccio STOP/PAUSA potrei perde il punto finale della registrazione,
                    per ovviare a questo ogni volta che premo STOP/PAUSA vado ad inserire il punto attuale nel DB
                 */
-                //gbl.myLog("myOnLocationChanged --> h["+h+"] delta_d_saved["+delta_d_saved+"]");
                 if (h > 0) {
                     // ------------------------------------------------------------
                     // Inserisco i dati nel DB se:
@@ -1798,6 +1801,7 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
                             h_min_live = h;
 
                         ins_location_DB();
+
                         h_precedente_saved = h;
                         last_gp_saved_on_db = GP_POS_ATTUALE;
                     }
@@ -1921,15 +1925,13 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
     // Aggiorno il DB con la posizione attuale
     private void ins_location_DB() {
         // NB: inserisco l'altezza media altezza media
-        //gbl.myLog("myOnLocationChanged --> ins_location_DB --> h["+h+"]");
-        myDatabase.ins_Location_Rows(("" + GP_POS_ATTUALE.getLatitude()), ("" + GP_POS_ATTUALE.getLongitude()), "" + h);
+        myDatabase.ins_Location_Rows(("" + GP_POS_ATTUALE.getLatitude()), ("" + GP_POS_ATTUALE.getLongitude()), "" + h, "" + h_api);
 
     }
 
     private int drawAllTracks_OSM(){
         try {
             if (map_osm != null) {
-                String trackId;
 
                 lst_polyline = new ArrayList<>();
                 lst_track_osm = new ArrayList<>();
@@ -1956,6 +1958,7 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
                         public boolean onMarkerClick(org.osmdroid.views.overlay.Marker marker, MapView mapView) {
                             selected_marker_wp = m;
                             selected_marker_wp.showInfoWindow();
+                            marker.showInfoWindow();
                             return false;
                         }
                     });
@@ -2281,7 +2284,7 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
                     public void onClick(DialogInterface dialogInterface, int i) {
                         try{
                             if ( et_trackName.getText().length() > 0 ) {
-                                ins_location_DB(); // questo è l'ultimo punto tracciato
+                                  ins_location_DB(); // questo è l'ultimo punto tracciato
                                 SaveTrackOnDB(et_trackName.getText().toString());
                                 int trackIndex = drawAllTracks_OSM();
                                 zoomTrack(trackIndex);
@@ -2636,7 +2639,7 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
                         if (!isRecording) {
                             current_marker_wp.setId(wp_id);
                             current_marker_wp.setTitle(et_awp_name.getText().toString());
-
+                            current_marker_wp.setIcon(ResourcesCompat.getDrawable(getResources(), ((ListItem) mySpinner.getSelectedItem()).imgThumb, null));
                             if (gbl.getSelectTrack_osm() != null)
                                 gbl.getSelectTrack_osm().lst_waypoints_marker.add(current_marker_wp);
                             else
@@ -2993,6 +2996,7 @@ gbl.myLog1("gbl.pref_default_zoom["+gbl.pref_default_zoom+"]");
 
         return 180+Math.toDegrees(angle);
     }
+
 
     // Determina se il GeoPoint è visualizzato sullo schermo
     private boolean isCurrentLocationVisible(GeoPoint gp){

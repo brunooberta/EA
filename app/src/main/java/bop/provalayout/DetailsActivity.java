@@ -356,9 +356,6 @@ public class DetailsActivity extends AppCompatActivity {
 
             return rootView;
         }
-
-
-
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {

@@ -29,7 +29,7 @@ public class GPSDatabase {
     private DbHelper dbHelper;
 
     private final String DBNAME="gps1";
-    private final int DBVERSION=3;
+    private final int DBVERSION=5;
     public SQLiteDatabase db;
 
     private final String CREATE_TBL_TRACKINFO="create table trackInfo(id integer, name text, value text);";
@@ -37,54 +37,15 @@ public class GPSDatabase {
     private final String CREATE_TBL_TRACK="create table track(trackId integer not null,locationId integer not null,latitude text, longitude text, altitude text not null, timestamp text,PRIMARY KEY ( trackId, locationId) );";
     private final String CREATE_TBL_SAVEDTRACK="create table track_saved(trackId integer not null, description text, visible integer, toFollow integer, polylineId text,length text, h_max text,h_min text, delta_h_pos text, delta_h_neg text, during text, startDate text, endDate text, PRIMARY KEY ( trackId ) );";
     private final String CREATE_TBL_WPT="create table waypoints(id integer primary key autoincrement, trackId integer not null, latitude text, longitude text, altitude text, name text, cmt text, desc text, sym text );";
+    private final String CREATE_TBL_ALT_API="create table track_altitude_api(trackId integer not null, locationId integer not null, altitudeApi text, PRIMARY KEY ( trackId,locationId ));";
 
     /*
-    * Tabella location:     contiene i punti che il dispositivo sta tracciando attualmente
-    * Tabella track:        contiene i punti di tutte le tracce salvate
-    * Tabella track_saved:  contiene le info (ad es Description) delle tracce salvate in track
+    * Tabella location:             contiene i punti che il dispositivo sta tracciando attualmente
+    * Tabella track:                contiene i punti di tutte le tracce salvate
+    * Tabella track_saved:          contiene le info (ad es Description) delle tracce salvate in track
+    * Tabella waypoints:            contiene le info relative ai punti di interesse
+    * Tabella track_altitude_api:   contiene le info relative all'altezza delle posizioni storicizzate ricavata dalla GOOGLE API
     * */
-
-    public void updData(){
-        Cursor cur;
-        String query = "", upd="";
-
-        query = "SELECT a.trackId, b.description, a.latitude, a.longitude, a.altitude, a.timestamp, a.locationId FROM track a, track_saved b WHERE a.trackId=24 and a.trackId = b.trackId ORDER BY a.trackId";
-        cur = db.rawQuery(query, null);
-        cur.moveToFirst();
-        int tstart=0,tdelta=0;
-        for(int i=0;i<cur.getCount();i++){
-
-            //Log.w("MY_CHECK", "a.trackId["+cur.getString(0)+"], b.description["+cur.getString(1)+"], a.latitude["+cur.getString(2)+"], a.longitude["+cur.getString(3)+"], a.altitude["+cur.getString(4)+"], a.timestamp["+cur.getString(5)+"]");
-
-            String alt = cur.getString(4);
-            if (alt.length()>8)
-                alt = alt.substring(0,8);
-
-            upd = "UPDATE track SET altitude = '" +alt +"' WHERE trackId=24 and locationId = " +cur.getString(6);
-            //db.execSQL(upd);
-            //Log.w("MY_CHECK",upd +  "cur.getString(4)["+cur.getString(4)+"]");
-            cur.moveToNext();
-        }
-        cur.close();
-
-    }
-
-    public void printData(){
-        Cursor cur;
-        String query = "";
-
-        query = "SELECT a.trackId, b.description, a.latitude, a.longitude, a.altitude, a.timestamp, a.locationId FROM track a, track_saved b WHERE a.trackId = b.trackId ORDER BY a.trackId";
-        cur = db.rawQuery(query, null);
-        cur.moveToFirst();
-        for(int i=0;i<cur.getCount();i++){
-
-            Log.w("MY_CHECK", "a.trackId["+cur.getString(0)+"], b.description["+cur.getString(1)+"], a.latitude["+cur.getString(2)+"], a.longitude["+cur.getString(3)+"], a.altitude["+cur.getString(4)+"], a.timestamp["+cur.getString(5)+"]");
-
-            cur.moveToNext();
-        }
-        cur.close();
-
-    }
 
     // I WP non associati ad alcuna traccia li associo alla traccia fittizia con trackId = -1
     public Cursor get_waypoints(String trackId){
@@ -92,8 +53,7 @@ public class GPSDatabase {
         String query = "";
 
         if (!trackId.equals("-1") && !trackId.equals("-2") && trackId.length()>0 )
-            query = "SELECT a.trackId, a.id, b.description, a.name, a.latitude , a.longitude , a.altitude , a.cmt , a.desc , a.sym FROM waypoints a, track_saved b WHERE a.trackId = b.trackId and a.trackId = "+trackId+" ORDER BY a.trackId, a.id";
-
+            query = "SELECT a.trackId, a.id, b.description, a.name, a.latitude , a.longitude , a.altitude , a.cmt , a.desc , a.sym FROM waypoints a, track_saved b WHERE a.trackId = b.trackId and a.trackId = " + trackId + " ORDER BY a.trackId, a.id";
         else
             query = "SELECT a.trackId, a.id, '', a.name, a.latitude , a.longitude , a.altitude , a.cmt , a.desc , a.sym FROM waypoints a WHERE a.trackId = "+trackId+" ORDER BY a.trackId, a.id";
 
@@ -106,7 +66,16 @@ public class GPSDatabase {
         Cursor cur;
         String query = "";
 
-        query = "SELECT b.description, a.latitude, a.longitude, a.altitude, a.timestamp, b.startDate FROM track a, track_saved b WHERE a.trackId = b.trackId and a.trackId = "+trackId+" ORDER BY a.trackId, a.locationId";
+        //query = "SELECT b.description, a.latitude, a.longitude, a.altitude, a.timestamp, b.startDate FROM track a, track_saved b WHERE a.trackId = b.trackId and a.trackId = "+trackId+" ORDER BY a.trackId, a.locationId";
+
+        query = "SELECT b.description, a.latitude, a.longitude, a.altitude, a.timestamp, b.startDate, c.altitudeApi ";
+        query += "FROM track a, track_saved b, track_altitude_api c ";
+        query += "WHERE ";
+        query +=      "a.trackId = b.trackId ";
+        query +=  "and a.trackId = " + trackId;
+        query += "and a.trackId = c.trackId ";
+        query += "and a.locationId = c.locationId ";
+        query += "ORDER BY a.trackId, a.locationId";
 
         cur = db.rawQuery(query, null);
 
@@ -152,12 +121,11 @@ public class GPSDatabase {
         db.update( "waypoints",values,"id=?",new String[]{wpId});
     }
 
-
     public GPSDatabase(Context context){
 
         this.context=context;
         dbHelper=new DbHelper(context);
-        //dbHelper.onUpgrade(dbHelper.getWritableDatabase(),3,4);
+        //dbHelper.onUpgrade(dbHelper.getWritableDatabase(),4,5);
     }
 
     public class DbHelper extends SQLiteOpenHelper {
@@ -174,6 +142,8 @@ public class GPSDatabase {
             db.execSQL(CREATE_TBL_SAVEDTRACK);
             db.execSQL(CREATE_TBL_TRACKINFO);
             db.execSQL(CREATE_TBL_WPT);
+            db.execSQL(CREATE_TBL_ALT_API);
+
 
         }
 
@@ -224,23 +194,56 @@ public class GPSDatabase {
 
     }
 
-    public long ins_Location_Rows(String latitude, String longitude, String altitude){
+    public long ins_Location_Rows(String latitude, String longitude, String altitude, String altitudeApi){
         try {
+            int MAX_LOC_ID = 0, maxLocId = -1;
+            ContentValues valueLocation = new ContentValues();
 
-            ContentValues value = new ContentValues();
+            valueLocation.put("latitude", latitude);
+            valueLocation.put("longitude", longitude);
+            valueLocation.put("timestamp", getDate());
+            valueLocation.put("altitude", altitude);
 
-            value.put("latitude", latitude);
-            value.put("longitude", longitude);
-            value.put("timestamp", getDate());
-            value.put("altitude", altitude);
+            long retCodeInsLocation = db.insert("location", null, valueLocation);
 
-            return db.insert("location", null, value);
+            Cursor cursor=db.rawQuery("SELECT max(locationId) as max_locationId FROM location",null); // recupero l'ultima location inserita
+
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                maxLocId = cursor.getInt(MAX_LOC_ID);
+            }
+            cursor.close();
+
+            ContentValues valueAltitudeApi = new ContentValues();
+            valueAltitudeApi.put("trackId", FAKE_TRACK_RECORDING_WP);
+            valueAltitudeApi.put("locationId", maxLocId);
+            valueAltitudeApi.put("altitudeApi", altitudeApi);
+
+            db.insert("track_altitude_api", null, valueAltitudeApi);
+
+            Log.w("MY_CHECK","ins_Location_Rows --> maxLocId["+maxLocId+"]");
+
+            return retCodeInsLocation;
         }
         catch (Exception e){
             Log.w("MY_CHECK","ERRORE in insertRows ["+e.toString()+"]");
         }
 
         return -1;
+    }
+
+    public void get_altitudeApi(String trackId){
+        int TRACKID =0, LOCID = 1, ALT = 2;
+        //Cursor cursor=db.rawQuery("SELECT * FROM track_altitude_api WHERE trackId = " + trackId + " ORDER BY locationId" ,null); // recupero l'ultima location inserita
+        Cursor cursor=db.rawQuery("SELECT * FROM track_altitude_api ORDER BY trackId,locationId" ,null); // recupero l'ultima location inserita
+        //Log.w("MY_CHECK", "------------ get_altitudeApi ["+cursor.getCount()+"]----------- ");
+        if (cursor.moveToFirst()) {
+            do {
+                Log.w("MY_CHECK", "trackID["+cursor.getInt(TRACKID)+"] locationId["+cursor.getInt(LOCID)+"] altitudeApi["+cursor.getInt(ALT)+"]") ;
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
     }
 
     public int get_Max_TrackId(){
@@ -359,34 +362,6 @@ public class GPSDatabase {
         }
     }
 
-    public void del_WayPoints(String id, String trackId) {
-        try {
-            String slq = "";
-            if (id=="")
-                slq = "DELETE FROM waypoints WHERE trackId='"+trackId+"'";
-            else
-                slq = "DELETE FROM waypoints WHERE id='"+id+"' AND trackId='"+trackId+"'";
-
-            db.execSQL(slq);
-        }
-        catch(Exception e){
-            Log.w("MY_CHECK","ERRORE in del_WayPoints["+ e.toString() +"]");
-        }
-    }
-
-    public void setTrackToFollow(int trackId, boolean isFollowing){
-        try {
-            String toFollow = "0";
-            if (isFollowing)  toFollow="1";
-
-            upd_TrackSaved_Rows(new String[]{"toFollow"},new String[]{toFollow},"trackId=?",new String[]{""+trackId});
-        }
-        catch (Exception e){
-            Log.w("MY_CHECK","ERRORE in setTrackToFollow ["+e.toString()+"]");
-        }
-
-    }
-
     // Utilizzata per trasferire i dati della traccia che sto registrando dalla tab LOCATION alla tabella TRACK
     public int ins_Track_Rows(List<Location> lstLocation){
         db.beginTransaction();
@@ -411,6 +386,9 @@ public class GPSDatabase {
                 db.insert("track", null, value);
             }
             String sql_upd = "UPDATE waypoints SET trackId = " +maxTrackId+ " WHERE trackId = " + FAKE_TRACK_RECORDING_WP;
+            db.execSQL( sql_upd );
+
+            sql_upd = "UPDATE track_altitude_api SET trackId = " +maxTrackId+ " WHERE trackId = " + FAKE_TRACK_RECORDING_WP;
             db.execSQL( sql_upd );
 
             db.setTransactionSuccessful();
@@ -574,7 +552,7 @@ public class GPSDatabase {
             return trackId;
         }
         catch (Exception e){
-            Log.w("MY_CHECK","ERRORE in ins_TrackSaved_Rows ["+e.toString()+"]");
+            Log.w("MY_CHECK","ERRORE in ins_GPX_data ["+e.toString()+"]");
             return -1;
         }
 
@@ -596,16 +574,14 @@ public class GPSDatabase {
             values.put("h_min", String.format("%.0f",h_min));
             values.put("delta_h_pos", String.format("%.0f",deltaH_pos));
             values.put("delta_h_neg", String.format("%.0f",deltaH_neg));
-
-            //20170805 INIZIO MODIFICA
-            // values.put("during", String.format("%.0f",d.mDuring));
             values.put("during", String.format("%.0f",during));
-            //20170805 FINE MODIFICA
-
             values.put("startDate",d.mStartDate);
             values.put("endDate",d.mEndDate);
 
             db.insert("track_saved", null, values);
+
+            String sql_upd = "UPDATE track_altitude_api SET trackId = " +trackId+ " WHERE trackId = " + FAKE_TRACK_RECORDING_WP;
+            db.execSQL( sql_upd );
 
             return trackId;
         }
@@ -616,23 +592,6 @@ public class GPSDatabase {
 
     }
 
-    // Setta/Resetta la traccia da seguire
-    public void set_trackToFollow(String polylineId, String valore ){
-        try {
-            String[] setFields = new String[]{"toFollow"};
-            String[] setValues = new String[]{valore};
-
-            ContentValues values = new ContentValues();
-            values.put(setFields[0],setValues[0]);
-
-            int retUpdValue = db.update( "track_saved",values,"polylineId=?",new String[]{polylineId});
-
-        }
-        catch (Exception e){
-            Log.w("MY_CHECK","ERRORE in set_trackToFollow ["+e.toString()+"]");
-        }
-
-    }
 
     // Setta/Resetta la traccia da seguire
     public void set_trackToFollow_OSM(String trackId, String valore ){
@@ -643,7 +602,7 @@ public class GPSDatabase {
             ContentValues values = new ContentValues();
             values.put(setFields[0],setValues[0]);
 
-            int retUpdValue = db.update( "track_saved",values,"trackId=?",new String[]{trackId});
+            db.update( "track_saved",values,"trackId=?",new String[]{trackId});
 
         }
         catch (Exception e){
@@ -652,7 +611,7 @@ public class GPSDatabase {
 
     }
 
-    // Imposta a Stringa VUOTA il recordo relativo and unceto polylineId
+    // Imposta a Stringa VUOTA il record relativo ad un certo polylineId
     public void upd_resetPolylineId(String polylineId ){
         try {
             String[] setFields = new String[]{"polylineId"};
@@ -693,8 +652,6 @@ public class GPSDatabase {
     }
 
     private String getDate(){
-
-        //long time= System.currentTimeMillis()/1000; // inserisco nel DB i secondi
         long time= SystemClock.elapsedRealtime()/1000; // inserisco nel DB i secondi
 
         return "" + time;
@@ -753,6 +710,7 @@ public class GPSDatabase {
         try {
             db.execSQL("DELETE FROM location");
             db.execSQL("DELETE FROM waypoints WHERE trackId = " + FAKE_TRACK_RECORDING_WP);
+            db.execSQL("DELETE FROM track_altitude_api WHERE trackId = " + FAKE_TRACK_RECORDING_WP);
         }
         catch (Exception e){
             Log.w("MY_CHECK","ERRORE in del_Location_AllRows ["+e.toString()+"]");
@@ -762,13 +720,13 @@ public class GPSDatabase {
     public void del_TrackSaved( String[] whereValues){
         try {
             for (int i = 0; i < whereValues.length; i++) {
-                // Log.w("MY_CHECK", "del_TrackSaved --> DELETE FROM track_saved WHERE trackId = " + whereValues[i]);
+
                 db.execSQL("DELETE FROM track WHERE trackId = " + whereValues[i]);
                 db.execSQL("DELETE FROM track_saved WHERE trackId = " + whereValues[i]);
                 db.execSQL("DELETE FROM waypoints WHERE trackId = " + whereValues[i]);
+                db.execSQL("DELETE FROM track_altitude_api WHERE trackId = " + whereValues[i]);
 
                 Global.getTrackOsmCollection().removeTrackFromCollection(whereValues[i]);
-
             }
         }
         catch (Exception e){
@@ -780,29 +738,6 @@ public class GPSDatabase {
     public boolean isOpen(){
 
         return db.isOpen();
-    }
-
-    public String[] getVisibleTrackId(){
-        try {
-            Cursor cur = db.rawQuery("SELECT trackId FROM track_saved WHERE visible=1", null);
-            cur.moveToFirst();
-
-            String[] ret = new String[cur.getCount()];
-
-            for (int i = 0; i < cur.getCount(); i++) {
-                ret[i] = cur.getString(0);
-                cur.moveToNext();
-            }
-
-            cur.close();
-
-            return ret;
-        }
-        catch (Exception e){
-            Log.w("MY_CHECK","ERRORE in getVisibleTrackId["+ e.toString() +"]");
-            return null;
-        }
-
     }
 
     public ArrayList<String> getTrackDetails(String trackId){
