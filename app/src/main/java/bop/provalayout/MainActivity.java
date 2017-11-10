@@ -135,7 +135,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                             isJustStarted=false;   // Inizialmente è FALSE alla prima esecuzione di OmStart diventa TRUE
     private static boolean isFollowing = false;
     private static String altitude = "?";
-    private static long stop_timer=0,
+    private static long request_h_timer =0,
+                        stop_timer=0,
                         showLocation_timer = 0,
                         direction_timer = 0,
                         savePoint_timer = 0,
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private GPSDatabase myDatabase;
     static private boolean isAcusticAlarmSuppressed = true;
     private MyBroadcastReceiver mMyBroadcastReceiver;
-    private TextView tv_trackName_seekbar;
+    private TextView tv_trackName_seekbar, tv_snippet, tv_title;
     private double trackLength = 0, deltaH_pos = 0, deltaH_neg = 0, h_max = 0, h_min = 99999, during = 0;
     private LatLng wp_LatLng;
     private String FAKE_TRACK_RECORDING_WP = "-1", // indice traccia fake su cui mi appoggio per i wp della traccia che sto registrando
@@ -434,6 +435,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             });
 
+            tv_snippet= (TextView) findViewById(R.id.tv_snippet);
+            tv_title= (TextView) findViewById(R.id.tv_title);
+            tv_snippet.setText("");
+            tv_title.setText("");
             tv_alt = (TextView) findViewById(R.id.tv_alt);
             tv_alt.setText(getString(R.string.str_load));
 
@@ -681,8 +686,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                     map_osm.getOverlays().removeAll(lst);
                     map_osm.getOverlays().add(m);
-
-                    m.showInfoWindow();
+                    tv_title.setText("");
+                    tv_snippet.setText(m.getSnippet());
+                    //m.showInfoWindow();
                     map_osm.invalidate();
                 }
 
@@ -893,10 +899,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                             curr_wp_index = wp_list_size - 1;
                         break;
                 }
-                wp_list.get(curr_wp_index).showInfoWindow();
+                //wp_list.get(curr_wp_index).showInfoWindow();
+                EA_showInfoWindow(wp_list.get(curr_wp_index));
 
                 current_marker_wp =  wp_list.get(curr_wp_index);
-                current_marker_wp.showInfoWindow();
+                //current_marker_wp.showInfoWindow();
 
                 mapController.setCenter(current_marker_wp.getPosition());
             }
@@ -943,9 +950,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     @Override
                     public boolean onMarkerClick(org.osmdroid.views.overlay.Marker marker, MapView mapView) {
                        selected_marker_wp = current_marker_wp;
-                        selected_marker_wp.showInfoWindow();
-                        marker.showInfoWindow();
-                        gbl.myLog1("addMarkerOnMap --> onMarkerClick ["+ marker.getSnippet() +"]");
+                        //selected_marker_wp.showInfoWindow();
+                        //marker.showInfoWindow();
+                        EA_showInfoWindow(marker);
                         return false;
                     }
                 });
@@ -986,11 +993,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         @Override
                         public void run() {
                             layout_function.setVisibility(ConstraintLayout.INVISIBLE);
+                            EA_showInfoWindow(null);
                         }
                     }).start();
                 }
 
-                //;
+
             }
         }catch(Exception e){gbl.myLog( "ERRORE in setVisbilityLayoutFunction  [" + e.toString() + "]");}
 
@@ -1069,7 +1077,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                         if (near_marker != null ) {
                             map_osm.getOverlays().add(near_marker);
-                            near_marker.showInfoWindow();
+                            //near_marker.showInfoWindow();
+                            tv_title.setText("");
+                            tv_snippet.setText(near_marker.getSnippet());
                             showSelectTrackLayout(true, closestMarker_index, near_marker.getPosition());
                         } else {
                             // Se sto seguendo una traccia non devo eliminare la selezione della traccia
@@ -1088,6 +1098,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }catch (Exception e) {
             gbl.myLog( "ERRORE in myMapOnTouchListener [" + e.toString() + "]");
             return super.dispatchTouchEvent(ev);
+        }
+    }
+
+    private void EA_showInfoWindow(org.osmdroid.views.overlay.Marker m){
+
+        if (m!=null) {
+            tv_snippet.setText(m.getSnippet());
+            tv_title.setText(m.getTitle());
+        }else{
+            tv_snippet.setText("");
+            tv_title.setText("");
         }
     }
 
@@ -1234,11 +1255,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     public boolean onMarkerClick(org.osmdroid.views.overlay.Marker marker, MapView mapView) {
 
                         selected_marker_wp = m;
-                        selected_marker_wp.showInfoWindow();
-                        marker.showInfoWindow();
-
-                        gbl.myLog1("drawTrackOnMap_OSM --> onMarkerClick ["+ m.getSnippet() +"]");
-
+                        //selected_marker_wp.showInfoWindow();
+                        //marker.showInfoWindow();
+                        EA_showInfoWindow(marker);
                         return false;
                     }
                 });
@@ -1258,16 +1277,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
-    private void zoomTrack(Track_OSM t) {
-        try {
-            zoomBoundingBox(t);
-        } catch (Exception e) {
-            gbl.myLog( "ERRORE in zoomTrack [" + e.toString() + "]");
-
-        }
-    }
-
-    private void zoomOnPoint(GeoPoint gp){
+   private void zoomOnPoint(GeoPoint gp){
         mapController.setZoom(gbl.pref_default_zoom);
         mapController.setCenter(gp);
     }
@@ -1278,7 +1288,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             if(lst_track_osm.size() > 0) {
                 Track_OSM t = lst_track_osm.get(id);
                 if(t!=null) {
-                    t.startMarker.showInfoWindow();
+                    //t.startMarker.showInfoWindow();
                     zoomBoundingBox(t);
                 } else{
                     mapController.setCenter(GP_POS_ATTUALE);
@@ -1373,6 +1383,31 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         }
         else stop_timer = 0;
+
+        return ret;
+    }
+
+    // Nella versione FREE gestisce il tempo di attività delle varie funzionalità: trascorso il T_soglia le stoppa
+    private boolean isTimeToRequestAltitude(long T_soglia_ms) {
+        boolean ret = false;
+        long now = System.currentTimeMillis(), delta = 0;
+
+        if (request_h_timer < 2) {
+
+            if(request_h_timer == 0) {
+                request_h_timer = now;
+                return true; // gestione la prima chiamata assoluta della procedure in fase di start application
+            }else
+                request_h_timer = now;
+        }
+
+        else delta = (long) (now - request_h_timer);
+
+        if (delta > T_soglia_ms) {
+            request_h_timer = 1; // in modo da distinguere le chiamate successive alla prima assoluta
+            ret = true;
+        }
+
 
         return ret;
     }
@@ -1570,19 +1605,20 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         /*
         Ritengo che l'altezza sia corretta se:
             1. h > 0
-            2. Assumo che andando a piedi non sia possibile procedere con un dislivello > 5m al secondo (che è la mia unità di campinamento della posizione)-->
+            2. Assumo che andando a piedi non sia possibile procedere con un dislivello > 5m al secondo (che è la mia unità di campionamento della posizione)-->
                --> dico che se in un secondo il dislivello percorso è > 5m --> la misura è errata.
         */
         boolean ret=true;
-
-        //gbl.myLog("isCorrectAltitude --> h["+h+"] H_PRECEDENTE["+H_PRECEDENTE+"] DELTA["+Math.abs(h - H_PRECEDENTE)+"]");
+        int delta_h_1s = 5;
         int delta_T = 60000;
+        //gbl.myLog("isCorrectAltitude --> h["+h+"] H_PRECEDENTE["+H_PRECEDENTE+"] DELTA["+Math.abs(h - H_PRECEDENTE)+"]");
+
         if (h>0) {
             // Se è da almeno delta_T che non aggiorno l'altitudine forzo l'aggiornamento
             if (isTimeToRefreshAltitude(delta_T)) {
                 ret = true;
             }else
-                if(Math.abs(h - gbl.H_PRECEDENTE) > 5 && gbl.H_PRECEDENTE!=0) {
+                if(Math.abs(h - gbl.H_PRECEDENTE) > delta_h_1s && gbl.H_PRECEDENTE!=0) {
                     ret = false;
             }
         }
@@ -1622,48 +1658,47 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     }
 
+    private void setPrefGeoidCorrection(){
+        if(gbl.pref_gps_autocalibrate && h_api > 0 && !gbl.isJustCalibrate()) {
+            double h_avg = gbl.getAverage(lst_h);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = preferences.edit();
+
+            editor.putString(getResources().getString(R.string.pref_gps_key_geoid_correction), "" + (int) (h_api - h_avg));
+            editor.commit();
+            // Dopo la calibrazione avviso l'utente.
+             Toast.makeText(getApplicationContext(), R.string.auto_calibrate_complete, Toast.LENGTH_LONG).show();
+
+            gbl.setIsJustCalibrate(true);
+        }
+    }
     // Procedura che gestisce il calcolo dell'altitudine in base ad un buffer circolare di 60 posizioni
     private int altitudeManager(double h){
         int ret_h = 0;
 
-        // Se le preference mi dicono che è attiva la autocalibrazione utilizzo h_api
-        // se non c'è connessione internet: h_api < 0
-        // Se h_api < 0 --> passo al calcolo classico
-        if(gbl.pref_gps_autocalibrate && h_api>0) {
-            boolean isPopulated = populate_array_of_h(h); // popolo il buffer circolare con i valori GPS in modo che se devo passare offline la correzione geodetica funzini correttamente
-            ret_h = (int) h_api;
-
-            if(isPopulated) {
-                // Effettuo la auto calibrazione sovrascrivendo le impostazioni nei setting
-                double h_avg = gbl.getAverage(lst_h);
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putString(getResources().getString(R.string.pref_gps_key_geoid_correction), "" + (int)(h_api - h_avg));
-                editor.commit();
-                // Dopo la prima calibrazione avviso l'utente.
-                if(!gbl.isJustCalibrate()) {
-                    Toast.makeText(getApplicationContext(),R.string.auto_calibrate_complete,Toast.LENGTH_LONG).show();
-                }
-                gbl.setIsJustCalibrate(true);
-            }
-
-
-
-        } else {
-            if (!populate_array_of_h(h)) {
-                return (int) gbl.H_PRECEDENTE;
-            }
-
-            double h_avg = gbl.getAverage(lst_h);
-            h_avg = h_avg + gbl.pref_gps_geoid_correction;
-
-            if (isCorrectAltitude(h_avg)) {
-                ret_h = (int) h_avg;
-            } else
-                ret_h = (int) gbl.H_PRECEDENTE;
-
+        if(gbl.pref_gps_autocalibrate && h_api < 0 && !gbl.isJustCalibrate()) {
+            Toast.makeText(getApplicationContext(), R.string.auto_calibrate_failure, Toast.LENGTH_LONG).show();
+            gbl.setIsJustCalibrate(true);
         }
-        //gbl.myLog1("gbl.pref_gps_autocalibrate["+gbl.pref_gps_autocalibrate+"] h_api["+h_api+"] ret_h["+ret_h+"]");
+
+        boolean isPopulated = populate_array_of_h(h);
+
+        if (!isPopulated)
+            return (int) gbl.H_PRECEDENTE;
+        else
+            setPrefGeoidCorrection();
+
+        double h_avg = gbl.getAverage(lst_h);
+
+        h_avg = h_avg + gbl.pref_gps_geoid_correction;
+
+
+        if (isCorrectAltitude(h_avg)) {
+            ret_h = (int) h_avg;
+        } else
+            ret_h = (int) gbl.H_PRECEDENTE;
+
+
 
         return ret_h;
 
@@ -1675,7 +1710,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             POS_ATTUALE = new LatLng(location.getLatitude(), location.getLongitude());
             GP_POS_ATTUALE = new GeoPoint(location.getLatitude(), location.getLongitude());
 
-            h_api =  gbl.getAltitudeFromGoogleapis(location.getLatitude(), location.getLongitude(), getApplicationContext());
+            // Richiedo l'altezza ogni minuto
+            //if(isTimeToRequestAltitude(60*1000))
+            if(gbl.pref_gps_autocalibrate && !gbl.isJustRequestH()) {
+                h_api = gbl.getAltitudeFromGoogleapis(location.getLatitude(), location.getLongitude(), getApplicationContext());
+                gbl.setIsJustRequestH(true);
+            }
 
             h = altitudeManager(location.getAltitude());
 
@@ -1723,7 +1763,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         tv_img_play_pause_rec.setText(R.string.fa_play_circle_o);
                         FontManager.markAsIconContainer(tv_img_play_pause_rec, iconFont, gbl.DLG_BTN_SIZE, Color.RED);
                         btn_rec.setImageResource(R.drawable.rec_stop);
-                        gbl.myLog1("ins_location_DB 2");
                         ins_location_DB(); // questo è l'ultimo punto tracciato
                         SaveTrackOnDB("RECORDED_TRACK");
                         int trackIndex = drawAllTracks_OSM();
@@ -1957,8 +1996,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         @Override
                         public boolean onMarkerClick(org.osmdroid.views.overlay.Marker marker, MapView mapView) {
                             selected_marker_wp = m;
-                            selected_marker_wp.showInfoWindow();
-                            marker.showInfoWindow();
+                            //selected_marker_wp.showInfoWindow();
+                            //marker.showInfoWindow();
+                            EA_showInfoWindow(marker);
                             return false;
                         }
                     });
@@ -2868,10 +2908,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             gbl.myLog("ERRORE in Dlg_Confirm["+ e.toString() +"]");
         }
 
-    }
-
-    private static float pxFromDp(float dp, Context mContext) {
-        return dp * mContext.getResources().getDisplayMetrics().density;
     }
 
     // Popolo la lista delle icone relative ai WayPoints

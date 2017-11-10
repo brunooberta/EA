@@ -40,7 +40,7 @@
     <string name="fb_login_protocol_scheme">fb1553731234648288</string>
 
     <string name="google_maps_key">AIzaSyDIRVdWSoCVqMHD5wuU38hWWxnCimp1mHs</string>
-    <string name="mapquest_key">AIzaSyBsLGN3IgRcep7WhanFOS4UIGUehOtKItM</string>
+    <string name="mapquest_key">SHLFESNpAk5qF9p3L09QePuMeo1KkEuW</string>
     <string name="title_activity_saved_tracks">SavedTracksActivity</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_navigation">NavigationActivity</string>
@@ -67,6 +67,7 @@
     <string name="nothig_to_show">"Attention: No tracks to show."</string>
     <!-- MainActivity -->
     <string name="auto_calibrate_complete">"Auto Calibration Complete: setting has been changed."</string>
+    <string name="auto_calibrate_failure">"Auto Calibration Failure: check Intenet Connection."</string>
 
 
     <!-- GENERALE -->

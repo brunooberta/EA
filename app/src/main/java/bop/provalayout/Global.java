@@ -7,10 +7,14 @@ import android.util.Log;
 
 import com.google.android.gms.location.DetectedActivity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.osmdroid.tileprovider.MapTileProviderArray;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
@@ -29,6 +33,7 @@ public class Global {
     static private boolean isCentertMode_ON = false;
     static private boolean isPaused = false;
     static private boolean isJustCalibrate = false;
+    static private boolean isJustRequestH = false;
     static private long recordingTime = 0;
     static private MapTileProviderArray tileProviderArray = null;
     static private String appFolderPath = "";
@@ -133,6 +138,14 @@ public class Global {
 
     public static void setIsJustCalibrate(boolean isJustCalibrate) {
         Global.isJustCalibrate = isJustCalibrate;
+    }
+
+    public static boolean isJustRequestH() {
+        return isJustRequestH;
+    }
+
+    public static void setIsJustRequestH(boolean isJustRequestH) {
+        Global.isJustRequestH = isJustRequestH;
     }
 
     public void myLog(String text){
@@ -363,24 +376,45 @@ public class Global {
         }
     }
 
-   public double getAltitudeFromGoogleapis(Double longitude, Double latitude, Context ctx) throws IOException {
+    public double getAltitudeFromGeonames(Double longitude, Double latitude, Context ctx) throws IOException, JSONException {
         if (isInternetAvailable()) {
             double result = Double.NaN;
             URL url;
             HttpURLConnection urlConnection = null;
-            String server_response;
 
+            url = new URL("http://api.geonames.org/gtopo30JSON?lat=" + String.valueOf(longitude) + "&lng="+ String.valueOf(latitude) +"&username=bruno.oberta");
+            myLog1("url["+url+"]");
+/*
             url = new URL("https://maps.googleapis.com/maps/api/elevation/xml?locations=" + String.valueOf(longitude)
                     + "," + String.valueOf(latitude)
                     + "&key=" + ctx.getString(R.string.google_maps_key));
+                    */
 
             urlConnection = (HttpURLConnection) url.openConnection();
             try {
+                StringBuilder response  = new StringBuilder();
+
+                BufferedReader input = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()),8192);
+                String strLine = null;
+                while ((strLine = input.readLine()) != null)
+                {
+                    response.append(strLine);
+                }
+                input.close();
+
+                JSONObject mainResponseObject = new JSONObject(response.toString());
+                result = mainResponseObject.optDouble("gtopo30");
+
+                myLog1("result["+result+"]");
+
+                /*
+                 String server_response;
                 int responseCode = urlConnection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     InputStream instream = urlConnection.getInputStream();
                     int r = -1;
                     StringBuffer respStr = new StringBuffer();
+
                     while ((r = instream.read()) != -1)
                         respStr.append((char) r);
                     String tagOpen = "<elevation>";
@@ -392,7 +426,9 @@ public class Global {
                         result = Double.parseDouble(value);
                     }
                     instream.close();
+
                 }
+                */
             } catch (IOException e) {
                 myLog1("Errore IOException in getAltitude [" + e.toString() + "]");
             }
@@ -401,6 +437,49 @@ public class Global {
             return -1;
     }
 
+   public double getAltitudeFromGoogleapis(Double longitude, Double latitude, Context ctx) throws IOException, JSONException {
+        if (isInternetAvailable()) {
+            double result = Double.NaN;
+            URL url;
+            HttpURLConnection urlConnection = null;
+
+            url = new URL("https://maps.googleapis.com/maps/api/elevation/xml?locations=" + String.valueOf(longitude)
+                    + "," + String.valueOf(latitude)
+                    + "&key=" + ctx.getString(R.string.google_maps_key));
+
+            myLog1("url["+url+"]");
+            urlConnection = (HttpURLConnection) url.openConnection();
+            try {
+
+                 String server_response;
+                int responseCode = urlConnection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    InputStream instream = urlConnection.getInputStream();
+                    int r = -1;
+                    StringBuffer respStr = new StringBuffer();
+
+                    while ((r = instream.read()) != -1)
+                        respStr.append((char) r);
+                    String tagOpen = "<elevation>";
+                    String tagClose = "</elevation>";
+                    if (respStr.indexOf(tagOpen) != -1) {
+                        int start = respStr.indexOf(tagOpen) + tagOpen.length();
+                        int end = respStr.indexOf(tagClose);
+                        String value = respStr.substring(start, end);
+                        result = Double.parseDouble(value);
+                    }
+                    instream.close();
+
+                    myLog1("url["+result+"]");
+                }
+
+            } catch (IOException e) {
+                myLog1("Errore IOException in getAltitude [" + e.toString() + "]");
+            }
+            return result;
+        }else
+            return -1;
+    }
     private boolean isInternetAvailable() {
         try {
             InetAddress ipAddr = InetAddress.getByName("google.com"); //You can replace it with your name
