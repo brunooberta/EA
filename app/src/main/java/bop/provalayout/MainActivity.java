@@ -389,7 +389,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-               showGPSDisabledAlertToUser();
+                showGPSDisabledAlertToUser();
+
             }
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)   != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -690,6 +691,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     tv_snippet.setText(m.getSnippet());
                     //m.showInfoWindow();
                     map_osm.invalidate();
+
+                    // Gestione della comparsa/scomparsa del layout sopra la mappa
+                    myHandler.removeCallbacks(myRunnable);
+                    setVisbilityLayoutFunction(true);
+                    myHandler.postDelayed(myRunnable,10000);
                 }
 
                 @Override
@@ -1050,6 +1056,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     break;
                 case MotionEvent.ACTION_DOWN:
                     cnt_ActionMove = 0;
+                    // Gestione della comparsa/scomparsa del layout sopra la mappa
                     myHandler.removeCallbacks(myRunnable);
                     setVisbilityLayoutFunction(true);
                     myHandler.postDelayed(myRunnable,10000);
@@ -3164,6 +3171,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                                 Intent callGPSSettingIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 
                                 startActivity(callGPSSettingIntent);
+
                             }
                         });
         alertDialogBuilder.setNegativeButton("Cancel",
