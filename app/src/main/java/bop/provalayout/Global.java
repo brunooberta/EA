@@ -10,6 +10,7 @@ import com.google.android.gms.location.DetectedActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.tileprovider.MapTileProviderArray;
+import org.osmdroid.views.MapView;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 
 public class Global {
 
+    static private MapView map_main;
     static public int DLG_BTN_SIZE = 90;
     static public double H_PRECEDENTE = 0;
     static private boolean isSelectTrackLocked = false;
@@ -60,6 +62,14 @@ public class Global {
     static private DetectedActivity activity = new DetectedActivity(DetectedActivity.UNKNOWN,100);
 
     public static boolean APP_FREE = false;
+
+    public static MapView getMap() {
+        return map_main;
+    }
+
+    public static void setMap(MapView map_main) {
+        Global.map_main = map_main;
+    }
 
     public static DetectedActivity getActivity() {return activity;}
     public static void setActivity(DetectedActivity activity) {Global.activity = activity;}
@@ -383,7 +393,6 @@ public class Global {
             HttpURLConnection urlConnection = null;
 
             url = new URL("http://api.geonames.org/gtopo30JSON?lat=" + String.valueOf(longitude) + "&lng="+ String.valueOf(latitude) +"&username=bruno.oberta");
-            myLog1("url["+url+"]");
 /*
             url = new URL("https://maps.googleapis.com/maps/api/elevation/xml?locations=" + String.valueOf(longitude)
                     + "," + String.valueOf(latitude)
@@ -404,8 +413,6 @@ public class Global {
 
                 JSONObject mainResponseObject = new JSONObject(response.toString());
                 result = mainResponseObject.optDouble("gtopo30");
-
-                myLog1("result["+result+"]");
 
                 /*
                  String server_response;
@@ -430,7 +437,7 @@ public class Global {
                 }
                 */
             } catch (IOException e) {
-                myLog1("Errore IOException in getAltitude [" + e.toString() + "]");
+                myLog("Errore IOException in getAltitude [" + e.toString() + "]");
             }
             return result;
         }else
@@ -447,7 +454,6 @@ public class Global {
                     + "," + String.valueOf(latitude)
                     + "&key=" + ctx.getString(R.string.google_maps_key));
 
-            myLog1("url["+url+"]");
             urlConnection = (HttpURLConnection) url.openConnection();
             try {
 
@@ -469,12 +475,10 @@ public class Global {
                         result = Double.parseDouble(value);
                     }
                     instream.close();
-
-                    myLog1("url["+result+"]");
                 }
 
             } catch (IOException e) {
-                myLog1("Errore IOException in getAltitude [" + e.toString() + "]");
+                myLog("Errore IOException in getAltitude [" + e.toString() + "]");
             }
             return result;
         }else

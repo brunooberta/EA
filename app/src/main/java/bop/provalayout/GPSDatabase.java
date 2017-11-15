@@ -23,6 +23,7 @@ import java.util.List;
 
 public class GPSDatabase {
 
+    private Global gbl = new Global();
     private Context context;
     private String FAKE_TRACK_RECORDING_WP = "-1", FAKE_TRACK_GENERIC_WP = "-2";
 
@@ -644,6 +645,15 @@ public class GPSDatabase {
             }
 
             db.update( "track_saved",values,whereFields,whereValues);
+
+            if (whereFields.toUpperCase().equals("TRACKID=?")) {
+                // devo riportare la modifica sulla trackcollection
+                Track_OSM_Collection tc = gbl.getTrackOsmCollection();
+                tc.removeTrackFromCollection(whereValues[0]);
+                tc.addTrackToCollection(whereValues[0]);
+            }
+
+
         }
         catch (Exception e){
             Log.w("MY_CHECK","ERRORE in upd_TrackSaved_Rows ["+e.toString()+"]");

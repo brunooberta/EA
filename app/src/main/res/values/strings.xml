@@ -293,6 +293,8 @@
     <string name="end_marker_title">END</string>
 
     <!-- MainActivity.java -->
+    <string name="permission_failure">Permission failure.</string>
     <string name="fake_track_rec_name">Associated with Recording Track</string>
     <string name="fake_track_generic">Not associated with any tracks</string>
+
 </resources>

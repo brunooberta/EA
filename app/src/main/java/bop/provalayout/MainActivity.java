@@ -257,6 +257,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         map_osm.getOverlays().add(mScaleBarOverlay);
 
         map_osm.invalidate();
+
+        gbl.setMap(map_osm);
     }
 
     @Override
@@ -390,11 +392,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 showGPSDisabledAlertToUser();
-
             }
+
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)   != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
+                Toast.makeText(getApplicationContext(),getString(R.string.permission_failure), Toast.LENGTH_LONG).show();
                 return;
             }
 
@@ -1291,12 +1293,36 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private void zoomTrack(int id) {
     try {
+
         if(lst_track_osm != null) {
-            if(lst_track_osm.size() > 0) {
-                Track_OSM t = lst_track_osm.get(id);
+            // verifico che ci siano tracce visibili
+            boolean thereIsTrackVisible = false;
+            for(int index = 0;index<lst_track_osm.size();index++){
+                Track_OSM t_tmp = lst_track_osm.get(index);
+                if (t_tmp.isVisible())
+                    thereIsTrackVisible = true;
+            }
+
+            if(thereIsTrackVisible) {
+                // verifico tra le tracce visibili ci sia quella selezionata dal rotator
+                // se no zoomo sulla traccia successiva.
+                Track_OSM t = null;
+                for (int index = id;index<lst_track_osm.size();index++){
+                    Track_OSM t_tmp = lst_track_osm.get(index);
+                    if (t_tmp.isVisible()) {
+                        if(zoom_rotator_index <=index) {
+                            if (index >= lst_track_osm.size())
+                                zoom_rotator_index = 0;
+                            else
+                                zoom_rotator_index = index + 1;
+                        }
+                        t = t_tmp;
+                        break;
+                    }
+                }
+
                 if(t!=null) {
-                    //t.startMarker.showInfoWindow();
-                    zoomBoundingBox(t);
+                      zoomBoundingBox(t);
                 } else{
                     mapController.setCenter(GP_POS_ATTUALE);
                     mapController.setZoom(gbl.pref_default_zoom);
